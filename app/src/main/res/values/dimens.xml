@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="addAlarm_marginBottom">32dp</dimen>
+    <dimen name="addAlarm_marginRight">28dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+</resources>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable name="viewModel" type="com.allydev.ally.viewmodels.AlarmHolderViewModel"/>
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+                android:inputType="none"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:text="@{@string/alarm_row_time(viewModel.hourStr, viewModel.minuteStr, viewModel.amPm)}"
+                android:textSize="32sp"
+                android:gravity="center"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/timeView" app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toStartOf="@+id/switch1" app:layout_constraintBottom_toTopOf="@+id/rmon"/>
+
+
+        <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:textColor="@{safeUnbox(viewModel.daysArr[1]) ? @color/selectedText : @color/lightgrey}"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:text="@string/alarm_lmon"
+                android:id="@+id/rmon" app:layout_constraintTop_toBottomOf="@+id/timeView"
+                app:layout_constraintBottom_toTopOf="@+id/rtue" app:layout_constraintStart_toStartOf="parent"/>
+        <EditText
+                android:textColor="@{safeUnbox(viewModel.daysArr[2])  ? @color/selectedText : @color/lightgrey}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:text="@string/alarm_ltue"
+                android:id="@+id/rtue" app:layout_constraintTop_toBottomOf="@+id/timeView"
+                app:layout_constraintStart_toEndOf="@+id/rmon"/>
+        <EditText
+                android:textColor="@{safeUnbox(viewModel.daysArr[3]) ? @color/selectedText : @color/lightgrey}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:text="@string/alarm_lwed"
+                android:id="@+id/rwed" app:layout_constraintTop_toBottomOf="@+id/timeView"
+                app:layout_constraintStart_toEndOf="@+id/rtue"/>
+        <EditText
+                android:textColor="@{safeUnbox(viewModel.daysArr[4]) ? @color/selectedText : @color/lightgrey}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:text="@string/alarm_lthurs"
+                android:id="@+id/rthurs" app:layout_constraintTop_toBottomOf="@+id/timeView"
+                app:layout_constraintStart_toEndOf="@+id/rwed"/>
+        <EditText
+                android:textColor="@{safeUnbox(viewModel.daysArr[5])  ? @color/selectedText : @color/lightgrey}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:text="@string/alarm_lfri"
+                android:id="@+id/rfri" app:layout_constraintTop_toBottomOf="@+id/timeView"
+                app:layout_constraintStart_toEndOf="@+id/rthurs"/>
+        <EditText
+                android:textColor="@{safeUnbox(viewModel.daysArr[6])  ? @color/selectedText : @color/lightgrey}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:text="@string/alarm_lsat"
+                android:id="@+id/rsat" app:layout_constraintTop_toBottomOf="@+id/timeView"
+                app:layout_constraintStart_toEndOf="@+id/rfri"/>
+        <EditText
+                android:textColor="@{safeUnbox(viewModel.daysArr[0])  ? @color/selectedText : @color/lightgrey}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:inputType="textPersonName"
+                android:focusable="false"
+                android:text="@string/alarm_lsun"
+                android:id="@+id/rsun" app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/rsat"/>
+
+        <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/switch1" app:layout_constraintStart_toEndOf="@+id/timeView"
+                app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
