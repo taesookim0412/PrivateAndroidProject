@@ -161,12 +161,12 @@ class AlarmActivity : AppCompatActivity() {
         }
 
         // Add to schema.
-        val newAlarm = Alarm(
+        /*val newAlarm = Alarm(
             isBootHour,
             isBootMinute,
             daysBoolArr
         )
-        alarmViewModel.createAlarm(newAlarm)
+        alarmViewModel.createAlarm(newAlarm)*/
     }
 
     public fun createAlarm(calendarMillis: Long, context: Context) {

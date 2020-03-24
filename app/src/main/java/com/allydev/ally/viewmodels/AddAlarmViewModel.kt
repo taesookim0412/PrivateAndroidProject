@@ -142,7 +142,7 @@ class AddAlarmViewModel() : ViewModel() {
         //Set new calendar to new time
         //Create alarmmanager service per iteration
         //Also add to the array
-        val daysBoolArr = Array<Boolean>(7) { false }
+        val daysBoolArr = Array<Boolean?>(7) { false }
 
         for (day: Days.Day in daysSet.value!!) {
             daysBoolArr[day.num - 1] = true
@@ -158,12 +158,7 @@ class AddAlarmViewModel() : ViewModel() {
 
         // Add to schema.
         if (isOnWake == false) {
-            val newAlarm = Alarm(
-                hour.value,
-                minute.value,
-                daysBoolArr
-            )
-        alarmViewModel.createAlarm(newAlarm)
+        alarmViewModel.createAlarm(hour.value, minute.value, daysBoolArr)
         }
     }
 

@@ -18,7 +18,7 @@ class AlarmViewModel(application: Application): AndroidViewModel(application) {
         allAlarmsSorted = repository.allAlarmsSorted
         allAlarms = repository.allAlarms
     }
-    fun createAlarm(alarm:Alarm) = viewModelScope.launch(Dispatchers.IO){
-        repository.createAlarm(alarm)
+    fun createAlarm(hour:Int?, minute: Int?, boolArr: Array<Boolean?>) = viewModelScope.launch(Dispatchers.IO){
+        repository.createAlarm(hour, minute, boolArr)
     }
 }

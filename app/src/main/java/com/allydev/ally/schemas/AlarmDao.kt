@@ -6,7 +6,7 @@ import androidx.room.*
 @Dao
 interface AlarmDao {
     @Insert
-    suspend fun createAlarm(alarm: Alarm)
+    fun createAlarm(alarm: Alarm)
 
     @Update
     fun updateAlarm(vararg alarms: Alarm)

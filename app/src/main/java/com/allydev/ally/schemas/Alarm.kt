@@ -17,12 +17,16 @@ data class Alarm(
     @ColumnInfo(name = "wed") val wed: Boolean?,
     @ColumnInfo(name = "thurs") val thurs: Boolean?,
     @ColumnInfo(name = "fri") val fri: Boolean?,
-    @ColumnInfo(name = "sat") val sat: Boolean?
+    @ColumnInfo(name = "sat") val sat: Boolean?,
+    @ColumnInfo(name = "daysSize") val daysElems: Int?,
+    @ColumnInfo(name = "requestId") val requestId: Int?
 
 ) {
     constructor(
         hour: Int?,
         min: Int?,
-        days: Array<Boolean>
-    ) : this(null, hour, min, days[0], days[1], days[2], days[3], days[4], days[5], days[6])
+        days: Array<Boolean?>,
+        daysElems: Int?,
+        requestId: Int?
+    ) : this(null, hour, min, days[0], days[1], days[2], days[3], days[4], days[5], days[6], daysElems, requestId)
 }
