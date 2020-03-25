@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.google.android.material.appbar.AppBarLayout android:layout_height="wrap_content"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:theme="@style/AppTheme.AppBarOverlay"
         xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-
-
-                <ScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                    <include layout="@layout/content_alarm"
-                            android:id="@+id/layout" />
-                </ScrollView>
-    </com.google.android.material.appbar.AppBarLayout>
+        <include
+                android:id="@+id/layout"
+                layout="@layout/content_alarm" />
+    </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>

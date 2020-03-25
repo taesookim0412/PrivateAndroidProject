@@ -19,4 +19,7 @@ interface AlarmDao {
 
     @Query("SELECT * from alarms ORDER BY hour ASC, min ASC")
     fun findAllSorted(): LiveData<List<Alarm>>
+
+    @Query("SELECT * from alarms WHERE hour = :pHour AND min = :pMinute")
+    fun findByHourMinute(pHour: Int?, pMinute:Int?): List<Alarm>
 }

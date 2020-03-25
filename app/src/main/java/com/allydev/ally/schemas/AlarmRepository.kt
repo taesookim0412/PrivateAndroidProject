@@ -23,12 +23,10 @@ class AlarmRepository(private val alarmDao: AlarmDao) {
             if (elem == true) boolCount++
         }
         var newRequestId = 0;
-        Log.d("Size of all alarms: ", allAlarms.size.toString())
         if (allAlarms.size != 0) {
             //Retrieve requestcode
             val lastAlarm: Alarm = allAlarms[allAlarms.lastIndex]
             val lastDaysElems = lastAlarm.daysElems
-            Log.d(lastAlarm.requestId.toString(), lastDaysElems.toString())
             newRequestId = lastAlarm.requestId!! + lastDaysElems!!
         }
 
@@ -36,5 +34,20 @@ class AlarmRepository(private val alarmDao: AlarmDao) {
 
         alarmDao.createAlarm(newAlarm)
         return newRequestId
+    }
+
+    @WorkerThread
+    fun findByHourMinuteAndDay(pHour: Int, pMinute: Int, dayIdx: Int):Alarm{
+        val alarmList: List<Alarm> = alarmDao.findByHourMinute(pHour, pMinute)
+        for (alarm in alarmList){
+            if (dayIdx == 0) { if (alarm.sun == true) return alarm }
+            else if (dayIdx == 1) { if (alarm.mon == true) return alarm }
+            else if (dayIdx == 2) { if (alarm.tue == true) return alarm }
+            else if (dayIdx == 3) { if (alarm.wed == true) return alarm }
+            else if (dayIdx == 4) { if (alarm.thurs == true) return alarm }
+            else if (dayIdx == 5) { if (alarm.fri == true) return alarm }
+            else if (dayIdx == 6) { if (alarm.sat == true) return alarm }
+        }
+        return Alarm(null, null, emptyArray(), null, null)
     }
 }

@@ -2,6 +2,7 @@ package com.allydev.ally.objects
 
 import android.widget.EditText
 import com.allydev.ally.R
+import com.allydev.ally.schemas.Alarm
 import kotlinx.android.synthetic.main.fragment_add_alarm.view.*
 
 class Days{
@@ -36,5 +37,31 @@ class Days{
         return mon
     }
 
+
+
+
     data class Day(val num:Int, val name:String, val id:Int)
+
+    companion object{
+        public fun createDaysBoolArr(newDaysSet: Set<Days.Day>): Array<Boolean?>{
+            val daysBoolArr = Array<Boolean?>(7) { false }
+
+            for (day: Days.Day in newDaysSet) {
+                daysBoolArr[day.num - 1] = true
+            }
+            return daysBoolArr
+        }
+        public fun createDaysSet(it: Alarm): MutableSet<Days.Day>{
+            val newDaysSet:MutableSet<Days.Day> = HashSet<Days.Day>()
+            if (it.sun == true) newDaysSet.add(Days().sun)
+            if (it.mon == true) newDaysSet.add(Days().mon)
+            if (it.tue == true) newDaysSet.add(Days().tue)
+            if (it.wed == true) newDaysSet.add(Days().wed)
+            if (it.thurs == true) newDaysSet.add(Days().thurs)
+            if (it.fri == true) newDaysSet.add(Days().fri)
+            if (it.sat == true) newDaysSet.add(Days().sat)
+            return newDaysSet
+        }
+
+    }
 }
