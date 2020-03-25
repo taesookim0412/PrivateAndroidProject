@@ -53,9 +53,8 @@ class AlarmActivity : AppCompatActivity() {
 
 
         //recreateAlarm(view)
-        val alarmProvider = ViewModelProviders.of(this).get(AlarmViewModel::class.java)
         val addAlarmViewModel = ViewModelProviders.of(this).get(AddAlarmViewModel::class.java)
-        addAlarmViewModel.reCreateAlarms(alarmProvider, view.context)
+        addAlarmViewModel.reCreateAlarms(view.context)
 
 
     }
@@ -65,7 +64,7 @@ class AlarmActivity : AppCompatActivity() {
 
     }
 
-    public fun recreateAlarm(view: View){
+    /*public fun recreateAlarm(view: View){
         //get closest alarm in the viewmodel
         //if the time is the closest alarm with a threshhold of one minute then dont reschedule it
         //otherwise recreate the same alarm with second 0 in 7 days
@@ -104,7 +103,7 @@ class AlarmActivity : AppCompatActivity() {
                 times++
                 Log.d("Ran", times++.toString())
             }
-    }
+    }*/
 
 
     fun addAction(alarmViewModel:AlarmViewModel, daysSet:MutableSet<Days.Day>, isBootActivity:Boolean, isBootMinute:Int?, isBootHour:Int?, bootContext: Context) {

@@ -29,7 +29,6 @@ import com.allydev.ally.fragments.dialogfragments.SleepGeniusAbout
 import com.allydev.ally.objects.Days
 import com.allydev.ally.objects.TimeStringify
 import com.allydev.ally.schemas.Alarm
-import com.allydev.ally.schemas.AlarmViewModel
 import com.allydev.ally.utils.FragmentUtil
 import kotlinx.android.synthetic.main.fragment_add_alarm.*
 import kotlinx.android.synthetic.main.fragment_all_alarms.*
@@ -38,7 +37,6 @@ import java.util.*
 class AddAlarm : Fragment() {
     private lateinit var alarmMgr: AlarmManager
     private lateinit var days: Days
-    private lateinit var alarmViewModel: AlarmViewModel
     private lateinit var timeViewModel: TimeViewModel
     private lateinit var addAlarmViewModel: AddAlarmViewModel
     private val version: Int = android.os.Build.VERSION.SDK_INT
@@ -59,7 +57,6 @@ class AddAlarm : Fragment() {
             DataBindingUtil.inflate(inflater, R.layout.fragment_add_alarm, container, false)
         Log.d("Binding", "Binding")
         addAlarmViewModel = ViewModelProviders.of(activity!!).get(AddAlarmViewModel::class.java)
-        alarmViewModel = ViewModelProviders.of(activity!!).get(AlarmViewModel::class.java)
         timeViewModel = ViewModelProviders.of(activity!!).get(TimeViewModel::class.java)
 
         binding.addAlarmViewModel = addAlarmViewModel
@@ -142,7 +139,7 @@ class AddAlarm : Fragment() {
     // add alarm
     private fun addAction(view: View) {
         setTimeInViewModel()
-        addAlarmViewModel.addAction(alarmViewModel, view.context, false)
+        addAlarmViewModel.addAction(view.context, false)
         view.findNavController().navigate(R.id.allAlarms)
     }
 

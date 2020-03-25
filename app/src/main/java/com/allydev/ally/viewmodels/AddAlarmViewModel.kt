@@ -11,16 +11,22 @@ import androidx.databinding.BaseObservable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.findNavController
 import com.allydev.ally.AlarmActivity
 import com.allydev.ally.R
 import com.allydev.ally.objects.Days
 import com.allydev.ally.schemas.Alarm
+import com.allydev.ally.schemas.AlarmDatabase
+import com.allydev.ally.schemas.AlarmRepository
 import com.allydev.ally.schemas.AlarmViewModel
 import com.allydev.ally.services.TimeChangeReceiver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.*
 
-class AddAlarmViewModel() : ViewModel() {
+class AddAlarmViewModel(application: Application) : AndroidViewModel(application) {
     var currentHour: MutableLiveData<Int>
     var currentMinute: MutableLiveData<Int>
     var hour: MutableLiveData<Int>
@@ -33,6 +39,7 @@ class AddAlarmViewModel() : ViewModel() {
     var days: Days
     var daysSet: MutableLiveData<MutableSet<Days.Day>>
     var testText: MutableLiveData<Boolean>
+    private var alarmRepository: AlarmRepository
 
     init{
         currentHour = MutableLiveData<Int>()
@@ -51,6 +58,7 @@ class AddAlarmViewModel() : ViewModel() {
          testText = MutableLiveData<Boolean>().apply{
             value = false
         }
+        alarmRepository = AlarmRepository(AlarmDatabase.getAlarmDao(application))
     }
 
 
@@ -70,21 +78,23 @@ class AddAlarmViewModel() : ViewModel() {
     }
 
 
-    fun reCreateAlarms(alarmViewModel: AlarmViewModel, context: Context){
-        var arrList:List<Alarm> = alarmViewModel.allAlarms
+    fun reCreateAlarms(context: Context) = viewModelScope.launch(
+        Dispatchers.IO){
+        var arrList:List<Alarm> = alarmRepository.retrieveAlarmList()
         Log.d(arrList.size.toString(), "arrlistsize")
-        arrList.forEach{
-            hour.value = it.hour
-            minute.value = it.min
-            if (it.sun == true) daysSet.value?.add(Days().sun)
-            if (it.mon == true) daysSet.value?.add(Days().mon)
-            if (it.tue == true) daysSet.value?.add(Days().tue)
-            if (it.wed == true) daysSet.value?.add(Days().wed)
-            if (it.thurs == true) daysSet.value?.add(Days().thurs)
-            if (it.fri == true) daysSet.value?.add(Days().fri)
-            if (it.sat == true) daysSet.value?.add(Days().sat)
-            addAction(alarmViewModel, context, true)
+        var newDaysSet: MutableSet<Days.Day> = HashSet<Days.Day>()
+        var lastReqId: Int = 0
 
+        arrList.forEach{
+            if (it.sun == true) newDaysSet.add(Days().sun)
+            if (it.mon == true) newDaysSet.add(Days().mon)
+            if (it.tue == true) newDaysSet.add(Days().tue)
+            if (it.wed == true) newDaysSet.add(Days().wed)
+            if (it.thurs == true) newDaysSet.add(Days().thurs)
+            if (it.fri == true) newDaysSet.add(Days().fri)
+            if (it.sat == true) newDaysSet.add(Days().sat)
+            addAction(context, true, newDaysSet, it.hour!!, it.min!!, lastReqId)
+            lastReqId += newDaysSet.size
         }
 
     }
@@ -106,9 +116,9 @@ class AddAlarmViewModel() : ViewModel() {
     * */
 
 
-
-    fun addAction(alarmViewModel:AlarmViewModel, context: Context, isOnWake:Boolean) {
-        val daysSize = daysSet.value?.size
+    fun addAction(context: Context, isOnWake:Boolean, newDaysSet: MutableSet<Days.Day> = daysSet.value!!, fHour: Int = hour.value!!, fMinute: Int = minute.value!!, lastReqId: Int = -1) {
+        val daysSize = newDaysSet.size
+        Log.d("Days Size: ", newDaysSet.size.toString())
         //Add just one day
         if (daysSize == 0 && isOnWake == false) {
             //get now. Calendar is required here for the following function: get(Calendar.DAY_OF_WEEK)
@@ -121,22 +131,19 @@ class AddAlarmViewModel() : ViewModel() {
             }
             //add the day to the set.
             val calDate: Int = calendar.get(Calendar.DAY_OF_WEEK)
-            daysSet.value?.add(days.calIntToDay(calDate))
+            newDaysSet.add(days.calIntToDay(calDate))
             //add nextday alarm default
         }
         //create instance of NOW, THEN make it the time that was set. (Same calendar block)
 
-        val calendar: Calendar = Calendar.getInstance().apply {
+
+        val baseCalendar: Calendar = Calendar.getInstance().apply {
             timeInMillis = System.currentTimeMillis()
-                set(Calendar.HOUR_OF_DAY, hour.value!!)
-                set(Calendar.MINUTE, minute.value!!)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
+            set(Calendar.HOUR_OF_DAY, fHour)
+            set(Calendar.MINUTE, fMinute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
         }
-
-
-        val dTime = System.currentTimeMillis()
-        var newCalendar: Calendar
 
 
         //Set new calendar to new time
@@ -144,33 +151,101 @@ class AddAlarmViewModel() : ViewModel() {
         //Also add to the array
         val daysBoolArr = Array<Boolean?>(7) { false }
 
-        for (day: Days.Day in daysSet.value!!) {
+        for (day: Days.Day in newDaysSet) {
             daysBoolArr[day.num - 1] = true
-            newCalendar = calendar.clone() as Calendar
-//                Log.d("should be old calendar", newCalendar.time.toString())
-            newCalendar.set(Calendar.DAY_OF_WEEK, day.num)
-            //Calendar day is less.. Therefore add a week.
-            if (newCalendar.timeInMillis <= dTime) {
-                newCalendar.add(Calendar.WEEK_OF_YEAR, 1)
-            }
-            createAlarm(newCalendar.timeInMillis, context.applicationContext)
-            }
-
-        // Add to schema.
+        }
         if (isOnWake == false) {
-        alarmViewModel.createAlarm(hour.value, minute.value, daysBoolArr)
+            createAlarmEntities(
+                hour.value,
+                minute.value,
+                daysBoolArr,
+                context.applicationContext,
+                newDaysSet,
+                baseCalendar
+            )
+        }
+/*
+            // Add to schema.
+            if (isOnWake == false) {
+                //This will be a coroutine therefore we cant call here therefore pass the necessary params for createAlarm(1,2 )
+                //Certainly pass [day.num - 1]
+                /// WOOPS this creates ONE alarm.. This is for each day!
+                // We have to refactor our code to create alarm entities, then obtain the request code, then forloop the days!
+                createAlarmEntities(hour.value, minute.value, daysBoolArr, newCalendar.timeInMillis, context.applicationContext, day.num - 1)
+            }
+*/
+        else {
+            // First we have to obtain the request codes
+            //One way we can do this is to get every alarm,
+            // Create alarms for each alarm ent (WE ARE ALREADY HERE) but keep track of the previous req code
+            // alarm 0: req code 0, we have a days array so create a requestcodeArr,
+            // !!keep track of the requestcodeid, next iteration add on top of that
+
+            var requestCodes: Array<Int> = createRequestCodes(lastReqId, daysBoolArr)
+            createAlarm(newDaysSet, context, requestCodes, baseCalendar)
         }
     }
 
-    public fun createAlarm(calendarMillis: Long, context: Context) {
-        val alarmIntent = Intent(context, AlarmActivity::class.java)
-        val alarmPendingIntent: PendingIntent = PendingIntent.getActivity(
-            //TODO: CHANGE REQUEST CODE FROM RANDOM
-            context, (0..10).random(), alarmIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarMillis, alarmPendingIntent)
+
+
+
+    // Only used when initially creating the alarm
+    fun createAlarmEntities(hour:Int?, minute: Int?, boolArr: Array<Boolean?>, context: Context, newDaysSet: MutableSet<Days.Day>, baseCalendar:Calendar) = viewModelScope.launch(Dispatchers.IO){
+        val lastRequestId:Int = alarmRepository.createAlarm(hour, minute, boolArr)
+        //Request codes are obtained here
+        val requestIdCodes:Array<Int> = createRequestCodes(lastRequestId, boolArr)
+
+        createAlarm(newDaysSet, context, requestIdCodes, baseCalendar)
+
+    }
+
+    fun createRequestCodes(lastRequestId: Int, boolArr: Array<Boolean?>): Array<Int>{
+        var requestCodeArr: Array<Int> = Array<Int>(7) { -1 }
+        var ct = lastRequestId;
+        for ((idx, bool) in boolArr.withIndex()){
+            if (bool == true){
+                requestCodeArr[idx] = ct
+                ct++
+            }
+        }
+        return requestCodeArr
+    }
+
+    //This is called when setting the alarms
+
+    public fun createAlarm(newDaysSet: MutableSet<Days.Day> = daysSet.value!!, context: Context, requestCodeArr: Array<Int>, baseCalendar: Calendar) {
+        for (day in newDaysSet) {
+            //retrieve the calendar object
+            val newCalendar: Calendar = calDaysToMillis(baseCalendar, System.currentTimeMillis(), day)
+            val alarmIntent = Intent(context, AlarmActivity::class.java)
+            val requestCode: Int = requestCodeArr[day.num - 1]
+            val alarmPendingIntent: PendingIntent = PendingIntent.getActivity(
+                context, requestCode, alarmIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmMgr.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                newCalendar.timeInMillis,
+                alarmPendingIntent
+            )
+        }
+    }
+
+    private fun calDaysToMillis(
+        baseCalendar: Calendar,
+        dTime: Long,
+        day: Days.Day
+    ): Calendar {
+        var newCalendar1: Calendar
+        newCalendar1 = baseCalendar.clone() as Calendar
+        //                Log.d("should be old calendar", newCalendar.time.toString())
+        newCalendar1.set(Calendar.DAY_OF_WEEK, day.num)
+        //Calendar day is less.. Therefore add a week.
+        if (newCalendar1.timeInMillis <= dTime) {
+            newCalendar1.add(Calendar.WEEK_OF_YEAR, 1)
+        }
+        return newCalendar1
     }
 
     fun getDayStrFromTxtValue(hourOfDay: Int = hour.value!!, minute: Int = this.minute.value!!) {

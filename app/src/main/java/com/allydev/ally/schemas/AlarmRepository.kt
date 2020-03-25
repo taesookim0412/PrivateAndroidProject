@@ -5,18 +5,17 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 
 class AlarmRepository(private val alarmDao: AlarmDao) {
-    val allAlarms: List<Alarm> = alarmDao.findAll()
     val allAlarmsSorted: LiveData<List<Alarm>> = alarmDao.findAllSorted()
 
     @WorkerThread
-    suspend fun createAlarm(hour: Int?, minute: Int?, boolArr: Array<Boolean?>){
-        /*if (allAlarms.size != 0) {
+    fun retrieveAlarmList(): List<Alarm>{
+        return alarmDao.findAll()
+    }
 
-            //logic here for next lastDayElems
-        }
-        else {
-            newId = 0
-        }*/
+    @WorkerThread
+    fun createAlarm(hour: Int?, minute: Int?, boolArr: Array<Boolean?>): Int{
+        //refresh allAlarms
+        val allAlarms = alarmDao.findAll()
 
         //Retrieve boolcount
         var boolCount:Int = 0
@@ -36,5 +35,6 @@ class AlarmRepository(private val alarmDao: AlarmDao) {
         val newAlarm:Alarm = Alarm(hour, minute, boolArr, boolCount, newRequestId)
 
         alarmDao.createAlarm(newAlarm)
+        return newRequestId
     }
 }

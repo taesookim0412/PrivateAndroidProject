@@ -30,8 +30,7 @@ abstract class AlarmDatabase : RoomDatabase() {
         // https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1#4785
         private fun buildDatabase(context: Context): AlarmDatabase {
             return Room.databaseBuilder(context, AlarmDatabase::class.java, "alarm-db")
-//                .addMigrations(AlarmMigrations.MIGRATION_1_2)
-                .allowMainThreadQueries()
+//                .addMigrations(AlarmMigrations.MIGRATION_1_2)\
                 .build()
         }
     }
