@@ -25,7 +25,7 @@ data class Alarm(
     constructor(
         hour: Int?,
         min: Int?,
-        days: Array<Boolean?>,
+        days: Array<Boolean>,
         daysElems: Int?,
         requestId: Int?
     ) : this(null, hour, min, days[0], days[1], days[2], days[3], days[4], days[5], days[6], daysElems, requestId)

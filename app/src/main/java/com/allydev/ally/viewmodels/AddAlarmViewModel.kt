@@ -8,6 +8,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.allydev.ally.AlarmActivity
 import com.allydev.ally.objects.Days
@@ -20,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
-class AddAlarmViewModel(application: Application) : AndroidViewModel(application) {
+class AddAlarmViewModel(alarmRepository: AlarmRepository) : ViewModel() {
     var currentHour: MutableLiveData<Int>
     var currentMinute: MutableLiveData<Int>
     var hour: MutableLiveData<Int>
@@ -96,7 +97,7 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
         val instAlarm:Alarm = alarmRepository.findByHourMinuteAndDay(currHour, currMinute, currDayIdx)
         //We have the target alarm now retrieve its request code and recreate its one alarm
         val newDaysSet: MutableSet<Days.Day> = Days.createDaysSet(instAlarm)
-        val daysBoolArr: Array<Boolean?> = Days.createDaysBoolArr(newDaysSet)
+        val daysBoolArr: Array<Boolean> = Days.createDaysBoolArr(newDaysSet)
         var requestCodes: Array<Int> = createRequestCodes(instAlarm.requestId!!, daysBoolArr)
         //Cant do this, we want to recreate One alarm
         //TODO CREATE ONE ALARM
@@ -118,7 +119,7 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
     }
 
 
-    public fun recreateOneAlarm(newDaysSet: MutableSet<Days.Day> = daysSet.value!!, context: Context, requestCodeArr: Array<Int>, baseCalendar: Calendar, currDayIdx: Int) {
+    public fun recreateOneAlarm(newDaysSet: MutableSet<Days.Day>? = daysSet.value, context: Context, requestCodeArr: Array<Int>, baseCalendar: Calendar, currDayIdx: Int) {
         val targetReqCode = requestCodeArr[currDayIdx]
         val targetDay:Days.Day = Days().calIntToDay(currDayIdx + 1)
 
@@ -157,9 +158,9 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
     * */
 
 
-    fun addAction(context: Context, isOnWake:Boolean, newDaysSet: MutableSet<Days.Day> = daysSet.value!!, fHour: Int = hour.value!!, fMinute: Int = minute.value!!, lastReqId: Int = -1) {
-        val daysSize = newDaysSet.size
-        Log.d("Days Size: ", newDaysSet.size.toString())
+    fun addAction(context: Context, isOnWake:Boolean, newDaysSet: MutableSet<Days.Day>? = daysSet.value, fHour: Int? = hour.value, fMinute: Int? = minute.value, lastReqId: Int = -1) {
+        val daysSize = newDaysSet?.size
+        Log.d("Days Size: ", newDaysSet?.size.toString())
         //Add just one day
         if (daysSize == 0 && isOnWake == false) {
             //get now. Calendar is required here for the following function: get(Calendar.DAY_OF_WEEK)
@@ -215,7 +216,7 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
 
 
     // Only used when initially creating the alarm
-    fun createAlarmEntities(hour:Int?, minute: Int?, boolArr: Array<Boolean?>, context: Context, newDaysSet: MutableSet<Days.Day>, baseCalendar:Calendar) = viewModelScope.launch(Dispatchers.IO){
+    fun createAlarmEntities(hour:Int?, minute: Int?, boolArr: Array<Boolean>, context: Context, newDaysSet: MutableSet<Days.Day>?, baseCalendar:Calendar) = viewModelScope.launch(Dispatchers.IO){
         val currRequestId:Int = alarmRepository.createAlarm(hour, minute, boolArr)
         //Request codes are obtained here
         val requestIdCodes:Array<Int> = createRequestCodes(currRequestId, boolArr)
@@ -224,7 +225,7 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
 
     }
 
-    fun createRequestCodes(currRequestId: Int, boolArr: Array<Boolean?>): Array<Int>{
+    fun createRequestCodes(currRequestId: Int, boolArr: Array<Boolean>): Array<Int>{
         var requestCodeArr: Array<Int> = Array<Int>(7) { -1 }
         var ct = currRequestId;
         for ((idx, bool) in boolArr.withIndex()){
@@ -238,8 +239,8 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
 
     //This is called when setting the alarms
 
-    public fun createAlarm(newDaysSet: MutableSet<Days.Day> = daysSet.value!!, context: Context, requestCodeArr: Array<Int>, baseCalendar: Calendar) {
-        for (day in newDaysSet) {
+    public fun createAlarm(newDaysSet: MutableSet<Days.Day>? = daysSet.value, context: Context, requestCodeArr: Array<Int>, baseCalendar: Calendar) {
+        for (day in newDaysSet.orEmpty()) {
             //retrieve the calendar object
             val newCalendar: Calendar = CalendarUtil.calDaysToAlarmMillis(baseCalendar, System.currentTimeMillis(), day)
             val alarmIntent = Intent(context, AlarmActivity::class.java)

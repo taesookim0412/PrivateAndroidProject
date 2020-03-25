@@ -43,10 +43,10 @@ class Days{
     data class Day(val num:Int, val name:String, val id:Int)
 
     companion object{
-        public fun createDaysBoolArr(newDaysSet: Set<Days.Day>): Array<Boolean?>{
-            val daysBoolArr = Array<Boolean?>(7) { false }
+        public fun createDaysBoolArr(newDaysSet: Set<Days.Day>?): Array<Boolean>{
+            val daysBoolArr = Array<Boolean>(7) { false }
 
-            for (day: Days.Day in newDaysSet) {
+            for (day: Days.Day in newDaysSet.orEmpty()) {
                 daysBoolArr[day.num - 1] = true
             }
             return daysBoolArr

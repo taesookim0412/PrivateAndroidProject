@@ -13,7 +13,7 @@ class AlarmRepository(private val alarmDao: AlarmDao) {
     }
 
     @WorkerThread
-    fun createAlarm(hour: Int?, minute: Int?, boolArr: Array<Boolean?>): Int{
+    fun createAlarm(hour: Int?, minute: Int?, boolArr: Array<Boolean>): Int{
         //refresh allAlarms
         val allAlarms = alarmDao.findAll()
 
