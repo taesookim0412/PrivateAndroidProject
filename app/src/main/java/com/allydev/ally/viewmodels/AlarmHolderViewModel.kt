@@ -1,9 +1,8 @@
 package com.allydev.ally.viewmodels
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.allydev.ally.objects.TimeStringify
+import com.allydev.ally.utils.TimeStringify
 import com.allydev.ally.schemas.Alarm
 
 class AlarmHolderViewModel(alarm: Alarm): ViewModel(){

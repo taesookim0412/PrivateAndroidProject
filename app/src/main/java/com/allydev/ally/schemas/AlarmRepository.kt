@@ -1,10 +1,24 @@
 package com.allydev.ally.schemas
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import com.allydev.ally.AlarmActivity
+import com.allydev.ally.utils.AddAlarmUtil
+import com.allydev.ally.utils.CalendarUtil
+import com.allydev.ally.utils.Days
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.*
 
 class AlarmRepository() {
+    public val addAlarmUtil:AddAlarmUtil = AddAlarmUtil(this)
     private val alarmDao: AlarmDao?
     val allAlarmsSorted: LiveData<List<Alarm>>?
     init{
@@ -29,7 +43,7 @@ class AlarmRepository() {
         var newRequestId = 0;
         if (allAlarms?.size != 0) {
             //Retrieve requestcode
-            val lastAlarm: Alarm = allAlarms!![allAlarms!!.lastIndex]
+            val lastAlarm: Alarm = allAlarms!![allAlarms.lastIndex]
             val lastDaysElems = lastAlarm.daysElems
             newRequestId = lastAlarm.requestId!! + lastDaysElems!!
         }
@@ -41,8 +55,9 @@ class AlarmRepository() {
     }
 
     @WorkerThread
-    fun findByHourMinuteAndDay(pHour: Int, pMinute: Int, dayIdx: Int):Alarm{
+    fun findByHourMinuteAndDay(pHour: Int?, pMinute: Int?, dayIdx: Int?):Alarm{
         val alarmList: List<Alarm>? = alarmDao?.findByHourMinute(pHour, pMinute)
+
         for (alarm in alarmList.orEmpty()){
             if (dayIdx == 0) { if (alarm.sun == true) return alarm }
             else if (dayIdx == 1) { if (alarm.mon == true) return alarm }
@@ -54,4 +69,9 @@ class AlarmRepository() {
         }
         return Alarm(null, null, emptyArray(), null, null)
     }
+
+    /*@WorkerThread
+    fun findAlarmByRequestCode(requestCode: Int){
+        val alarmList:
+    }*/
 }

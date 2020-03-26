@@ -35,7 +35,8 @@ class AllAlarms : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val viewManager = LinearLayoutManager(context)
         val viewAdapter = AlarmAdapter()
-        val recyclerView: RecyclerView? = alarms_view.apply{
+        /*val recyclerView: RecyclerView?  =*/
+            alarms_view.apply{
             setHasFixedSize(true)
 
             layoutManager = viewManager

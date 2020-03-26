@@ -61,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         AlarmDatabase.getInstance(applicationContext)
         AlarmDatabase.getAlarmDao(applicationContext)
-        Log.d("Created" , "databases")
         val navController = findNavController(R.id.mainFragment)
         val appBarConfiguration = AppBarConfiguration(navController.graph)
         findViewById<Toolbar>(R.id.toolbar)

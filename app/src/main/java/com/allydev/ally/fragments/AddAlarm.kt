@@ -2,11 +2,6 @@ package com.allydev.ally.fragments
 
 
 import android.app.AlarmManager
-import android.app.AlarmManager.RTC_WAKEUP
-import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_CANCEL_CURRENT
-import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -19,20 +14,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
-import com.allydev.ally.AlarmActivity
 import com.allydev.ally.R
 import com.allydev.ally.viewmodels.AddAlarmViewModel
 import com.allydev.ally.viewmodels.TimeViewModel
 import com.allydev.ally.databinding.FragmentAddAlarmBinding
 import com.allydev.ally.fragments.dialogfragments.SleepGenius
 import com.allydev.ally.fragments.dialogfragments.SleepGeniusAbout
-import com.allydev.ally.objects.Days
-import com.allydev.ally.objects.TimeStringify
-import com.allydev.ally.schemas.Alarm
+import com.allydev.ally.utils.Days
+import com.allydev.ally.utils.TimeStringify
 import com.allydev.ally.utils.FragmentUtil
 import kotlinx.android.synthetic.main.fragment_add_alarm.*
-import kotlinx.android.synthetic.main.fragment_all_alarms.*
-import java.util.*
 
 class AddAlarm : Fragment() {
     private lateinit var alarmMgr: AlarmManager
@@ -100,25 +91,25 @@ class AddAlarm : Fragment() {
 //        dateTextVar.text = getResourcesStr(R.string.tomorrow)
 
         //********========================= Hooks=========================********//
-        alarmTimePicker.setOnTimeChangedListener { alarmTimePicker, hour, minute ->
-            onTimeChanged(alarmTimePicker, hour, minute)
+        alarmTimePicker.setOnTimeChangedListener { _, hour, minute ->
+            onTimeChanged(hour, minute)
         }
 
 
-        mon.setOnClickListener { view -> onClickDay(mon, days.mon) }
-        tue.setOnClickListener { view -> onClickDay(tue, days.tue) }
-        wed.setOnClickListener { view -> onClickDay(wed, days.wed) }
-        thurs.setOnClickListener { view -> onClickDay(thurs, days.thurs) }
-        fri.setOnClickListener { view -> onClickDay(fri, days.fri) }
-        sat.setOnClickListener { view -> onClickDay(sat, days.sat) }
-        sun.setOnClickListener { view -> onClickDay(sun, days.sun) }
-        add.setOnClickListener { view -> addAction(view) }
-        bgGenius.setOnClickListener { view -> showGenius(view) }
-        genius_about.setOnClickListener { view -> showAboutGenius(view) }
+        mon.setOnClickListener { _ -> onClickDay(mon, days.mon) }
+        tue.setOnClickListener { _ -> onClickDay(tue, days.tue) }
+        wed.setOnClickListener { _ -> onClickDay(wed, days.wed) }
+        thurs.setOnClickListener { _ -> onClickDay(thurs, days.thurs) }
+        fri.setOnClickListener { _ -> onClickDay(fri, days.fri) }
+        sat.setOnClickListener { _ -> onClickDay(sat, days.sat) }
+        sun.setOnClickListener { _ -> onClickDay(sun, days.sun) }
+        add.setOnClickListener { _ -> addAction(view) }
+        bgGenius.setOnClickListener { _ -> showGenius() }
+        genius_about.setOnClickListener { _ -> showAboutGenius() }
     }
 
 
-    private fun showGenius(view: View?) {
+    private fun showGenius() {
         timeViewModel.hourStr.value = TimeStringify.getHour(hour)
         timeViewModel.minuteStr.value = TimeStringify.getMinute(minute)
         timeViewModel.ampmStr.value = TimeStringify.getAmpm(hour)
@@ -129,7 +120,7 @@ class AddAlarm : Fragment() {
         sleepGenius.show(ft, "dialog")
     }
 
-    private fun showAboutGenius(view: View?) {
+    private fun showAboutGenius() {
         val ft = fragmentManager?.beginTransaction()
         val sleepGeniusAbout = SleepGeniusAbout.newInstance()
         sleepGeniusAbout.show(ft!!, "dialog")
@@ -139,7 +130,7 @@ class AddAlarm : Fragment() {
     // add alarm
     private fun addAction(view: View) {
         setTimeInViewModel()
-        addAlarmViewModel.addAction(view.context, false)
+        addAlarmViewModel.addAction(false)
         view.findNavController().navigate(R.id.allAlarms)
     }
 
@@ -147,7 +138,7 @@ class AddAlarm : Fragment() {
 
     //************************************************** On time change, only change the day text **************************************************//
 
-    private fun onTimeChanged(view: TimePicker?, hourOfDay: Int, minute: Int) {
+    private fun onTimeChanged(hourOfDay: Int, minute: Int) {
         addAlarmViewModel.getDayStrFromTxtValue(hourOfDay, minute)
         setDay()
     }

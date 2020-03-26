@@ -1,29 +1,16 @@
 package com.allydev.ally
 
-import android.app.AlarmManager
-import android.app.Application
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.get
 import com.allydev.ally.databinding.ActivityAlarmBinding
-import com.allydev.ally.objects.Days
-import com.allydev.ally.schemas.Alarm
 import com.allydev.ally.schemas.AlarmDatabase
-import com.allydev.ally.schemas.AlarmRepository
-import com.allydev.ally.schemas.AlarmViewModel
 import com.allydev.ally.viewmodels.AddAlarmViewModel
-import kotlinx.android.synthetic.main.content_alarm.*
-import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 class AlarmActivity : AppCompatActivity() {
 
@@ -50,9 +37,19 @@ class AlarmActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        AlarmDatabase.getInstance(applicationContext)
+        AlarmDatabase.getAlarmDao(applicationContext)
+
         val addAlarmViewModel = ViewModelProviders.of(this).get(AddAlarmViewModel::class.java)
-        //
-        addAlarmViewModel.recreateAlarm_AtThisTime(view.context)
+        val hour:Int? = intent.extras!!.get("hour") as Int
+        val minute:Int? = intent.extras!!.get("minute") as Int
+        val day:Int? = intent.extras!!.get("day") as Int
+        Log.d("hour:", hour.toString())
+        Log.d("minute:", minute.toString())
+        Log.d("day:", day.toString())
+
+
+        addAlarmViewModel.recreateOneAlarm(hour, minute, day?:0)
 
 
     }

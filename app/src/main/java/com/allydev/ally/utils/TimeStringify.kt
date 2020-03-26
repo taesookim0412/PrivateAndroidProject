@@ -1,4 +1,4 @@
-package com.allydev.ally.objects
+package com.allydev.ally.utils
 
 class TimeStringify {
     companion object {

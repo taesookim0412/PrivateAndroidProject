@@ -29,11 +29,11 @@ class SleepGenius : DialogFragment() {
         binding.timeViewModel = timeViewModel
         val root = binding.root
         val wakeUpAt = binding.wakeUpAt
-        wakeUpAt.setOnClickListener{view -> onClickWakeUpAt(view)}
+        wakeUpAt.setOnClickListener{ _ -> onClickWakeUpAt()}
         return root
     }
 
-    fun onClickWakeUpAt(view:View){
+    fun onClickWakeUpAt(){
         Log.d("asd", "asd")
     }
 }

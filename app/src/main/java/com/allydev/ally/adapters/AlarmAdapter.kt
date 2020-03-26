@@ -3,11 +3,9 @@ package com.allydev.ally.adapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.allydev.ally.R
-import com.allydev.ally.objects.TimeStringify
 import com.allydev.ally.schemas.Alarm
 import com.allydev.ally.viewmodels.AlarmHolderViewModel
 

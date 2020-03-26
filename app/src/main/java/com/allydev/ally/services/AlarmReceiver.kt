@@ -8,22 +8,29 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.viewModelScope
 import com.allydev.ally.AlarmActivity
 import com.allydev.ally.schemas.Alarm
+import com.allydev.ally.schemas.AlarmDatabase
 import com.allydev.ally.schemas.AlarmRepository
 import com.allydev.ally.schemas.AlarmViewModel
+import com.allydev.ally.utils.Days
+import com.allydev.ally.viewmodels.AddAlarmViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AlarmReceiver: BroadcastReceiver() {
-    private lateinit var allAlarms: Array<Alarm>;
-    override fun onReceive(context: Context?, intent: Intent?){
+    private val serviceScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+    private val alarmRepository = AlarmRepository()
 
-    var alarmMgr: AlarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val alarmIntent = Intent(context, AlarmActivity::class.java)
-        alarmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-        context.startActivity(alarmIntent)
-
-        //TODO: Move the activity function to this receiver (then there's no activity) and remove the additionally created alarms
+    override fun onReceive(context: Context, intent: Intent?){
+        AlarmDatabase.getInstance(context)
+        AlarmDatabase.getAlarmDao(context)
+        alarmRepository.addAlarmUtil.reCreateAllAlarms(context, serviceScope)
 
     }
+
+
 }
