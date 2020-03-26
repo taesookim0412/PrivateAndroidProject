@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
-class AddAlarmViewModel(alarmRepository: AlarmRepository) : ViewModel() {
+class AddAlarmViewModel() : ViewModel() {
     var currentHour: MutableLiveData<Int>
     var currentMinute: MutableLiveData<Int>
     var hour: MutableLiveData<Int>
@@ -33,15 +33,14 @@ class AddAlarmViewModel(alarmRepository: AlarmRepository) : ViewModel() {
     var timeChangeReceiver:TimeChangeReceiver
     var days: Days
     var daysSet: MutableLiveData<MutableSet<Days.Day>>
-    var testText: MutableLiveData<Boolean>
-    var alarmRepository = alarmRepository
+    var alarmRepository: AlarmRepository
 
     init{
         currentHour = MutableLiveData<Int>()
         currentMinute = MutableLiveData<Int>()
         hour = MutableLiveData<Int>()
         minute = MutableLiveData<Int>()
-
+        alarmRepository = AlarmRepository()
          singleDayStr = MutableLiveData<String>()
          intentHooked = MutableLiveData<Boolean>()
          calendar = Calendar.getInstance()
@@ -49,9 +48,6 @@ class AddAlarmViewModel(alarmRepository: AlarmRepository) : ViewModel() {
          days = Days()
          daysSet = MutableLiveData<MutableSet<Days.Day>>().apply {
             value = HashSet<Days.Day>()
-        }
-         testText = MutableLiveData<Boolean>().apply{
-            value = false
         }
     }
 
@@ -291,7 +287,6 @@ class AddAlarmViewModel(alarmRepository: AlarmRepository) : ViewModel() {
 
     fun evalDaySet(day: Days.Day):String {
         val daysSet = daysSet.value
-        testText.value=true
         if (!daysSet!!.contains(day)) {
             daysSet.add(day)
             return "Add"
