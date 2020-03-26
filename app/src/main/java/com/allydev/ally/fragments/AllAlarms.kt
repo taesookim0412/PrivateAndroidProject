@@ -44,7 +44,7 @@ class AllAlarms : Fragment() {
 
         }
         alarmViewModel = ViewModelProviders.of(activity!!).get(AlarmViewModel::class.java)
-        alarmViewModel.allAlarmsSorted.observe(this, androidx.lifecycle.Observer { alarms ->
+        alarmViewModel.allAlarmsSorted?.observe(this, androidx.lifecycle.Observer { alarms ->
             alarms?.let{ viewAdapter.setAlarms(it) }
             Log.d("alarms", alarms.toString())
         })

@@ -34,19 +34,18 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        addAlarmViewModel = ViewModelProviders.of(this).get(AddAlarmViewModel::class.java)
-        if (!addAlarmViewModel.isTimeHooked()) {
+        /*if (!addAlarmViewModel.isTimeHooked()) {
 
             registerReceiver(addAlarmViewModel.timeChangeReceiver, minuteTickIntent)
             addAlarmViewModel.intentHooked.value = true
-        }
+        }*/
     }
 
     override fun onPause() {
         super.onPause()
-
+/*
         unregisterReceiver(addAlarmViewModel.timeChangeReceiver)
-        addAlarmViewModel.intentHooked.value = false
+        addAlarmViewModel.intentHooked.value = false*/
     }
 
     private val minuteTickIntent = IntentFilter().apply {
@@ -61,6 +60,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         AlarmDatabase.getInstance(applicationContext)
+        AlarmDatabase.getAlarmDao(applicationContext)
+        Log.d("Created" , "databases")
         val navController = findNavController(R.id.mainFragment)
         val appBarConfiguration = AppBarConfiguration(navController.graph)
         findViewById<Toolbar>(R.id.toolbar)
@@ -71,10 +72,6 @@ class MainActivity : AppCompatActivity() {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
-    }
-
-    public fun test(view: View){
-        var alarmMgr: AlarmManager = view.context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     }
 
 

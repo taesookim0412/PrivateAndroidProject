@@ -34,7 +34,7 @@ class AddAlarmViewModel(alarmRepository: AlarmRepository) : ViewModel() {
     var days: Days
     var daysSet: MutableLiveData<MutableSet<Days.Day>>
     var testText: MutableLiveData<Boolean>
-    private var alarmRepository: AlarmRepository
+    var alarmRepository = alarmRepository
 
     init{
         currentHour = MutableLiveData<Int>()
@@ -53,7 +53,6 @@ class AddAlarmViewModel(alarmRepository: AlarmRepository) : ViewModel() {
          testText = MutableLiveData<Boolean>().apply{
             value = false
         }
-        alarmRepository = AlarmRepository(AlarmDatabase.getAlarmDao(application))
     }
 
 
@@ -75,11 +74,11 @@ class AddAlarmViewModel(alarmRepository: AlarmRepository) : ViewModel() {
 
     fun reCreateAlarms(context: Context) = viewModelScope.launch(
         Dispatchers.IO){
-        var arrList:List<Alarm> = alarmRepository.retrieveAlarmList()
-        Log.d(arrList.size.toString(), "arrlistsize")
+        var arrList:List<Alarm>? = alarmRepository.retrieveAlarmList()
+        Log.d(arrList?.size.toString(), "arrlistsize")
         var lastReqId: Int = 0
 
-        arrList.forEach{
+        arrList?.forEach{
             var newDaysSet: MutableSet<Days.Day> = Days.createDaysSet(it)
             addAction(context, true, newDaysSet, it.hour!!, it.min!!, lastReqId)
             lastReqId += newDaysSet.size
