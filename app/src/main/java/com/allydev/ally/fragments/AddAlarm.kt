@@ -1,7 +1,6 @@
 package com.allydev.ally.fragments
 
 
-import android.app.AlarmManager
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -11,8 +10,8 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import com.allydev.ally.R
 import com.allydev.ally.viewmodels.AddAlarmViewModel
@@ -26,17 +25,16 @@ import com.allydev.ally.utils.FragmentUtil
 import kotlinx.android.synthetic.main.fragment_add_alarm.*
 
 class AddAlarm : Fragment() {
-    private lateinit var alarmMgr: AlarmManager
     private lateinit var days: Days
-    private lateinit var timeViewModel: TimeViewModel
-    private lateinit var addAlarmViewModel: AddAlarmViewModel
+    private val timeViewModel: TimeViewModel by activityViewModels<TimeViewModel>()
+    private val addAlarmViewModel: AddAlarmViewModel by activityViewModels<AddAlarmViewModel>()
     private val version: Int = android.os.Build.VERSION.SDK_INT
 
     private var hour: Int = 0
     private var minute: Int = 0
     private var currentHour: Int = 0
     private var currentMinute: Int = 0
-    private lateinit var daysSet: MutableSet<Days.Day>
+    private lateinit var daysSet: MutableSet<Day>
     private var singleDayStr: String = ""
 
 
@@ -47,8 +45,6 @@ class AddAlarm : Fragment() {
         val binding: FragmentAddAlarmBinding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_add_alarm, container, false)
         Log.d("Binding", "Binding")
-        addAlarmViewModel = ViewModelProviders.of(activity!!).get(AddAlarmViewModel::class.java)
-        timeViewModel = ViewModelProviders.of(activity!!).get(TimeViewModel::class.java)
 
         binding.addAlarmViewModel = addAlarmViewModel
         binding.setLifecycleOwner(viewLifecycleOwner)
@@ -57,15 +53,14 @@ class AddAlarm : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         //necessary:
         days = addAlarmViewModel.days
-        daysSet = addAlarmViewModel.daysSet.value!!
-
-
-        hour = addAlarmViewModel.hour.value!!
-        minute = addAlarmViewModel.minute.value!!
-//        currentHour = addAlarmViewModel.currentHour.value!!
-//        currentMinute = addAlarmViewModel.currentMinute.value!!
+        daysSet = addAlarmViewModel.daysSet.value?:HashSet<Days.Day>()
+        hour = addAlarmViewModel.hour.value?:6
+        minute = addAlarmViewModel.minute.value?:0
+        currentHour = addAlarmViewModel.currentHour.value?:6
+        currentMinute = addAlarmViewModel.currentMinute.value?:0
 
         setDaysText()
         setDay()
@@ -86,7 +81,6 @@ class AddAlarm : Fragment() {
         }
         setPicker()
 
-        //TODO - add date creator
 
 //        dateTextVar.text = getResourcesStr(R.string.tomorrow)
 
@@ -114,16 +108,16 @@ class AddAlarm : Fragment() {
         timeViewModel.minuteStr.value = TimeStringify.getMinute(minute)
         timeViewModel.ampmStr.value = TimeStringify.getAmpm(hour)
 
-        val ft = fragmentManager!!.beginTransaction()
+        val ft = childFragmentManager.beginTransaction()
 
         val sleepGenius = SleepGenius.newInstance()
         sleepGenius.show(ft, "dialog")
     }
 
     private fun showAboutGenius() {
-        val ft = fragmentManager?.beginTransaction()
+        val ft = childFragmentManager.beginTransaction()
         val sleepGeniusAbout = SleepGeniusAbout.newInstance()
-        sleepGeniusAbout.show(ft!!, "dialog")
+        sleepGeniusAbout.show(ft, "dialog")
     }
 
 
@@ -154,15 +148,16 @@ class AddAlarm : Fragment() {
         if (version >= 23) {
             alarmTimePicker.hour = hour
             alarmTimePicker.minute = minute
-        } else {
+        }
+        else {
             alarmTimePicker.currentHour = hour
             alarmTimePicker.currentMinute = minute
+
         }
     }
 
 
 
-    //TODO - Data binding. Not Worth it? ~30 extra lines, BaseObservable class, extra memory.
     //set em all
     private fun setDaysText(daysSet: MutableSet<Days.Day> = this.daysSet) {
         for (day in daysSet) {
@@ -170,7 +165,6 @@ class AddAlarm : Fragment() {
         }
     }
 
-    //TODO - Data binding. Not Worth it? ~30 extra lines, BaseObservable class, extra memory.
     //set one
     private fun onClickDay(day: EditText, vDay: Days.Day) {
         val result = addAlarmViewModel.evalDaySet(vDay)

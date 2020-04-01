@@ -4,14 +4,16 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.allydev.ally.R
 import com.allydev.ally.schemas.Alarm
 import com.allydev.ally.viewmodels.AlarmHolderViewModel
 
 
-class AlarmAdapter() : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
+class AlarmAdapter(val context: Context) : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
     private var alarms = emptyList<Alarm>()
+
 
     class AlarmViewHolder(val binding: com.allydev.ally.databinding.RecyclerviewAlarmRowBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -38,7 +40,7 @@ class AlarmAdapter() : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
     override fun onBindViewHolder(holder: AlarmViewHolder, position: Int) {
         val alarm = alarms[position]
         holder.itemView.tag = alarm
-        holder.binding.viewModel = AlarmHolderViewModel(alarm)
+        holder.binding.viewModel = AlarmHolderViewModel(alarm, context)
     }
 
     internal fun setAlarms(alarms: List<Alarm>) {

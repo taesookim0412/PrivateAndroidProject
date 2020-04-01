@@ -22,35 +22,24 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class AddAlarmViewModel(application: Application) : AndroidViewModel(application) {
-    var currentHour: MutableLiveData<Int>
-    var currentMinute: MutableLiveData<Int>
-    var hour: MutableLiveData<Int>
-    var minute: MutableLiveData<Int>
+    // Objects to instantiate
+    val alarmRepository = AlarmRepository()
+    val addAlarmUtil = alarmRepository.addAlarmUtil
+    val alarmManager = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val days = Days()
+    val calendar = Calendar.getInstance()
 
-    var singleDayStr: MutableLiveData<String>
-    var intentHooked: MutableLiveData<Boolean>
-    var calendar: Calendar
-    var timeChangeReceiver:TimeChangeReceiver
-    var days: Days
-    var daysSet: MutableLiveData<MutableSet<Days.Day>>
-    var alarmRepository: AlarmRepository
-    var addAlarmUtil:AddAlarmUtil
-
-    init{
-        currentHour = MutableLiveData<Int>()
-        currentMinute = MutableLiveData<Int>()
-        hour = MutableLiveData<Int>()
-        minute = MutableLiveData<Int>()
-        alarmRepository = AlarmRepository()
-        addAlarmUtil = alarmRepository.addAlarmUtil
-         singleDayStr = MutableLiveData<String>()
-         intentHooked = MutableLiveData<Boolean>()
-         calendar = Calendar.getInstance()
-         timeChangeReceiver = TimeChangeReceiver()
-         days = Days()
-         daysSet = MutableLiveData<MutableSet<Days.Day>>().apply {
+    //Controller values
+    val currentHour = MutableLiveData<Int>()
+    val currentMinute = MutableLiveData<Int>()
+    val hour = MutableLiveData<Int>()
+    val minute = MutableLiveData<Int>()
+    val singleDayStr = MutableLiveData<String>()
+    val daysSet = MutableLiveData<MutableSet<Days.Day>>().apply {
             value = HashSet<Days.Day>()
-        }
+    }
+    init{
+        hardReset()
     }
 /*
     fun recreateAlarm_AtThisTime() = viewModelScope.launch{
@@ -58,29 +47,14 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
     }*/
 
     fun recreateOneAlarm(hour:Int?, minute:Int?, dayIdx: Int?){
-        alarmRepository.addAlarmUtil.recreateOneAlarm_ExtraHourAndMinute(getApplication(), hour, minute, dayIdx?:0, viewModelScope)
+        alarmRepository.addAlarmUtil.recreateOneAlarm_ExtraHourAndMinute(getApplication(), hour, minute, dayIdx?:0, viewModelScope, alarmManager)
     }
 
 
     fun addAction(isOnWake: Boolean){
-        alarmRepository.addAlarmUtil.addAction(isOnWake, daysSet.value, hour.value, minute.value, -1, getApplication(), singleDayStr.value, viewModelScope)
+        alarmRepository.addAlarmUtil.addAction(isOnWake, daysSet.value, hour.value, minute.value, -1, getApplication(), alarmManager, singleDayStr.value, viewModelScope)
     }
 
-
-
-
-    fun isTimeHooked(): Boolean {
-        if (intentHooked.value != true) {
-            return false
-        }
-        return true
-    }
-
-    fun setTime(hourOfDay: Int, minute: Int) {
-        hour.value = hourOfDay
-        this.minute.value = minute
-        getDayStrFromTxtValue()
-    }
 
 
 
@@ -90,11 +64,17 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
 
 
     //Activity Controllers
-    fun getDayStrFromTxtValue(hourOfDay: Int = hour.value!!, minute: Int = this.minute.value!!) {
+    fun setTime(hourOfDay: Int, minute: Int) {
+        hour.value = hourOfDay
+        this.minute.value = minute
+        getDayStrFromTxtValue()
+    }
+
+    fun getDayStrFromTxtValue(hourOfDay: Int = hour.value?:6, minute: Int = this.minute.value?:0) {
         //if time is after now (by minute)
-        var currentHour = this.currentHour.value!!
-        var currentMinute = this.currentMinute.value!!
-        var singleDayStr = this.singleDayStr.value!!
+        val currentHour:Int = this.currentHour.value?:6
+        val currentMinute:Int = this.currentMinute.value?:0
+        val singleDayStr = this.singleDayStr.value!!
         if (minute > currentMinute && hourOfDay >= currentHour) {
             //set to today
             if (singleDayStr != "Today") {

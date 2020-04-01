@@ -4,8 +4,8 @@ import com.allydev.ally.R
 import com.allydev.ally.schemas.Alarm
 
 class Days{
-
-    val mon: Day =
+    companion object{
+     val mon: Day =
         Day(2, "mon", R.id.mon)
     val tue: Day =
         Day(3, "tue", R.id.tue)
@@ -42,12 +42,6 @@ class Days{
         return mon
     }
 
-
-
-
-    data class Day(val num:Int, val name:String, val id:Int)
-
-    companion object{
         public fun createDaysBoolArr(newDaysSet: Set<Day>?): Array<Boolean>{
             val daysBoolArr = Array<Boolean>(7) { false }
 
@@ -58,15 +52,17 @@ class Days{
         }
         public fun createDaysSet(it: Alarm): MutableSet<Day>{
             val newDaysSet:MutableSet<Day> = HashSet<Day>()
-            if (it.sun == true) newDaysSet.add(Days().sun)
-            if (it.mon == true) newDaysSet.add(Days().mon)
-            if (it.tue == true) newDaysSet.add(Days().tue)
-            if (it.wed == true) newDaysSet.add(Days().wed)
-            if (it.thurs == true) newDaysSet.add(Days().thurs)
-            if (it.fri == true) newDaysSet.add(Days().fri)
-            if (it.sat == true) newDaysSet.add(Days().sat)
+            if (it.sun == true) newDaysSet.add(Days.sun)
+            if (it.mon == true) newDaysSet.add(Days.mon)
+            if (it.tue == true) newDaysSet.add(Days.tue)
+            if (it.wed == true) newDaysSet.add(Days.wed)
+            if (it.thurs == true) newDaysSet.add(Days.thurs)
+            if (it.fri == true) newDaysSet.add(Days.fri)
+            if (it.sat == true) newDaysSet.add(Days.sat)
             return newDaysSet
         }
 
     }
 }
+
+data class Day(val num:Int, val name:String, val id:Int)

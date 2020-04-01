@@ -10,10 +10,6 @@
                 android:layout_height="match_parent"
                 tools:context=".fragments.AddAlarm">
 
-            <!-- TODO: Update blank fragment layout -->
-
-            <!-- Include other widget or layout tags here. These are considered
-                "child views" or "children" of the linear layout -->
             <TimePicker
                     android:id="@+id/alarmTimePicker"
                     android:layout_width="wrap_content"

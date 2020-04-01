@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProviders
 import com.allydev.ally.databinding.ActivityAlarmBinding
 import com.allydev.ally.schemas.AlarmDatabase
 import com.allydev.ally.viewmodels.AddAlarmViewModel
@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 
 class AlarmActivity : AppCompatActivity() {
 
+    val addAlarmViewModel:AddAlarmViewModel by viewModels()
     private lateinit var binding: ActivityAlarmBinding
     private var txtQuestion = "q"
     private var txtCategory = "c"
@@ -40,7 +41,6 @@ class AlarmActivity : AppCompatActivity() {
         AlarmDatabase.getInstance(applicationContext)
         AlarmDatabase.getAlarmDao(applicationContext)
 
-        val addAlarmViewModel = ViewModelProviders.of(this).get(AddAlarmViewModel::class.java)
         val hour:Int? = intent.extras!!.get("hour") as Int
         val minute:Int? = intent.extras!!.get("minute") as Int
         val day:Int? = intent.extras!!.get("day") as Int
@@ -48,9 +48,7 @@ class AlarmActivity : AppCompatActivity() {
         Log.d("minute:", minute.toString())
         Log.d("day:", day.toString())
 
-
-        addAlarmViewModel.recreateOneAlarm(hour, minute, day?:0)
-
+        addAlarmViewModel.recreateOneAlarm(hour, minute, day)
 
     }
 

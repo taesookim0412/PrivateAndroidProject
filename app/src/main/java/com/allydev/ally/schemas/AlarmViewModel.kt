@@ -19,7 +19,7 @@ class AlarmViewModel(application: Application): AndroidViewModel(application) {
     init{
         repository = AlarmRepository()
         repository.addAlarmUtil.reCreateAllAlarms(application, viewModelScope)
-        Log.d("Alarmviewmodel", "initted")
+        Log.d("Recreated all alarms", "Recreated")
         allAlarmsSorted = repository.allAlarmsSorted
     }
 }

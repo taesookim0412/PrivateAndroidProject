@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.viewModelScope
 import com.allydev.ally.AlarmActivity
 import com.allydev.ally.schemas.Alarm
@@ -23,11 +22,12 @@ import kotlinx.coroutines.withContext
 
 class AlarmReceiver: BroadcastReceiver() {
     private val serviceScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
-    private val alarmRepository = AlarmRepository()
+    private lateinit var alarmRepository:AlarmRepository
 
     override fun onReceive(context: Context, intent: Intent?){
         AlarmDatabase.getInstance(context)
         AlarmDatabase.getAlarmDao(context)
+        alarmRepository = AlarmRepository()
         alarmRepository.addAlarmUtil.reCreateAllAlarms(context, serviceScope)
 
     }

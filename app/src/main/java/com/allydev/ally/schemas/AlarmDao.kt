@@ -14,7 +14,7 @@ interface AlarmDao {
     @Delete
     fun deleteAlarm(vararg alarms: Alarm)
 
-    @Query("SELECT * FROM alarms")
+    @Query("SELECT * from alarms")
     fun findAll(): List<Alarm>
 
     @Query("SELECT * from alarms ORDER BY hour ASC, min ASC")

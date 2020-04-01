@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 class AlarmRepository() {
-    public val addAlarmUtil:AddAlarmUtil = AddAlarmUtil(this)
+    val addAlarmUtil:AddAlarmUtil = AddAlarmUtil(this)
     private val alarmDao: AlarmDao?
     val allAlarmsSorted: LiveData<List<Alarm>>?
     init{
@@ -68,6 +68,28 @@ class AlarmRepository() {
             else if (dayIdx == 6) { if (alarm.sat == true) return alarm }
         }
         return Alarm(null, null, emptyArray(), null, null)
+    }
+
+    @WorkerThread
+    fun deleteAlarmEntityAndCancelAlarms(alarm:Alarm, context: Context, alarmManager: AlarmManager){
+        //Cancel each alarm then delete the entity
+        val newDaysSet: MutableSet<Days.Day> = Days.createDaysSet(alarm)
+        val daysBoolArr: Array<Boolean> = Days.createDaysBoolArr(newDaysSet)
+        var requestCodes: Array<Int?> = addAlarmUtil.createRequestCodes(alarm.requestId, daysBoolArr)
+
+        //We have an array of request codes.
+
+        newDaysSet.forEach{
+            val requestCode = requestCodes[it.num - 1]
+            val alarmIntent: Intent = Intent(context, AlarmActivity::class.java)
+            val pendingAlarmIntent: PendingIntent = PendingIntent.getActivity(context, requestCode!!, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            alarmManager.cancel(pendingAlarmIntent)
+        }
+
+        alarmDao?.deleteAlarm(alarm)
+
+
+
     }
 
     /*@WorkerThread
