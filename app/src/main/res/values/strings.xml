@@ -24,4 +24,6 @@
     <string name="sleep_genius_title">Sleep Genius</string>
     <string name="sleep_genius_wakeup_opt1">Wake up at %1$s:%2$s %3$s</string>
     <string name="sleep_genius_wakeup_opt2">Fall asleep in _ minutes.</string>
+    <string name="difficulty">Difficulty</string>
+    <string name="category">Category</string>
 </resources>

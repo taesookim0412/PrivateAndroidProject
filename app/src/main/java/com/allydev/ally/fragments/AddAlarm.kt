@@ -19,13 +19,14 @@ import com.allydev.ally.viewmodels.TimeViewModel
 import com.allydev.ally.databinding.FragmentAddAlarmBinding
 import com.allydev.ally.fragments.dialogfragments.SleepGenius
 import com.allydev.ally.fragments.dialogfragments.SleepGeniusAbout
+import com.allydev.ally.utils.Day
 import com.allydev.ally.utils.Days
 import com.allydev.ally.utils.TimeStringify
 import com.allydev.ally.utils.FragmentUtil
 import kotlinx.android.synthetic.main.fragment_add_alarm.*
 
 class AddAlarm : Fragment() {
-    private lateinit var days: Days
+    private lateinit var days: Days.Companion
     private val timeViewModel: TimeViewModel by activityViewModels<TimeViewModel>()
     private val addAlarmViewModel: AddAlarmViewModel by activityViewModels<AddAlarmViewModel>()
     private val version: Int = android.os.Build.VERSION.SDK_INT
@@ -56,7 +57,7 @@ class AddAlarm : Fragment() {
 
         //necessary:
         days = addAlarmViewModel.days
-        daysSet = addAlarmViewModel.daysSet.value?:HashSet<Days.Day>()
+        daysSet = addAlarmViewModel.daysSet.value?:HashSet<Day>()
         hour = addAlarmViewModel.hour.value?:6
         minute = addAlarmViewModel.minute.value?:0
         currentHour = addAlarmViewModel.currentHour.value?:6
@@ -159,14 +160,14 @@ class AddAlarm : Fragment() {
 
 
     //set em all
-    private fun setDaysText(daysSet: MutableSet<Days.Day> = this.daysSet) {
+    private fun setDaysText(daysSet: MutableSet<Day> = this.daysSet) {
         for (day in daysSet) {
             view?.findViewById<EditText>(day.id)!!.setTextColor(Color.BLUE)
         }
     }
 
     //set one
-    private fun onClickDay(day: EditText, vDay: Days.Day) {
+    private fun onClickDay(day: EditText, vDay: Day) {
         val result = addAlarmViewModel.evalDaySet(vDay)
         setDayText(result, day)
     }

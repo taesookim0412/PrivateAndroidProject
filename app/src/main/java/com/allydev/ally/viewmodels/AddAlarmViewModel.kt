@@ -16,6 +16,7 @@ import com.allydev.ally.schemas.AlarmRepository
 import com.allydev.ally.services.TimeChangeReceiver
 import com.allydev.ally.utils.AddAlarmUtil
 import com.allydev.ally.utils.CalendarUtil
+import com.allydev.ally.utils.Day
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,7 +27,7 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
     val alarmRepository = AlarmRepository()
     val addAlarmUtil = alarmRepository.addAlarmUtil
     val alarmManager = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val days = Days()
+    val days:Days.Companion = Days
     val calendar = Calendar.getInstance()
 
     //Controller values
@@ -35,8 +36,8 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
     val hour = MutableLiveData<Int>()
     val minute = MutableLiveData<Int>()
     val singleDayStr = MutableLiveData<String>()
-    val daysSet = MutableLiveData<MutableSet<Days.Day>>().apply {
-            value = HashSet<Days.Day>()
+    val daysSet = MutableLiveData<MutableSet<Day>>().apply {
+            value = HashSet<Day>()
     }
     init{
         hardReset()
@@ -97,7 +98,7 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun evalDaySet(day: Days.Day):String {
+    fun evalDaySet(day: Day):String {
         val daysSet = daysSet.value
         if (!daysSet!!.contains(day)) {
             daysSet.add(day)
@@ -117,7 +118,7 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
         currentMinute.value = tMinute
         hour.value = 6
         minute.value = 0
-        daysSet.value = HashSet<Days.Day>()
+        daysSet.value = HashSet<Day>()
         singleDayStr.value = "Tomorrow"
     }
 

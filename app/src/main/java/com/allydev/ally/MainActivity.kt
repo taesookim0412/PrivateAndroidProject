@@ -53,18 +53,17 @@ class MainActivity : AppCompatActivity() {
 
         TriviaDatabase.getTriviaDao(application)
         val triviaViewModel = ViewModelProvider(this).get(TriviaViewModel::class.java)
-//        triviaViewModel.test()
         /*triviaViewModel.repository.api.switchToken_NewBuild("d5f9566082f19b4f8cb7ade00ba07212000e1c09bec57f870b0f1eef7d49ab4e")*/
 
 
+        triviaViewModel.getCategories.observe(this, Observer{
+
+        })
+
         triviaViewModel.putCustom50Questions("", "", "multiple")
-//        triviaViewModel.getCategories.observe(this, Observer{
-//
-//        })
 //        triviaViewModel.allTrivia?.observe(this, Observer{
 //            Log.d("it size: ", it.size.toString())
 //        })
-
 
         /*triviaViewModel.test()*/
 
@@ -78,14 +77,21 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings_difficulty -> true
+            R.id.action_settings_category -> {
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    fun onClickSettings(item: MenuItem) {
+
     }
 }

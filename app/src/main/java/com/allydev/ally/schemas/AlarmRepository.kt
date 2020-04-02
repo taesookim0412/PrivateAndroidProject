@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.allydev.ally.AlarmActivity
 import com.allydev.ally.utils.AddAlarmUtil
 import com.allydev.ally.utils.CalendarUtil
+import com.allydev.ally.utils.Day
 import com.allydev.ally.utils.Days
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +74,7 @@ class AlarmRepository() {
     @WorkerThread
     fun deleteAlarmEntityAndCancelAlarms(alarm:Alarm, context: Context, alarmManager: AlarmManager){
         //Cancel each alarm then delete the entity
-        val newDaysSet: MutableSet<Days.Day> = Days.createDaysSet(alarm)
+        val newDaysSet: MutableSet<Day> = Days.createDaysSet(alarm)
         val daysBoolArr: Array<Boolean> = Days.createDaysBoolArr(newDaysSet)
         var requestCodes: Array<Int?> = addAlarmUtil.createRequestCodes(alarm.requestId, daysBoolArr)
 
