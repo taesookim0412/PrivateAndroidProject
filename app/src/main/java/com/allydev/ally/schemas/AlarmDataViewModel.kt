@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class AlarmViewModel(application: Application): AndroidViewModel(application) {
+class AlarmDataViewModel(application: Application): AndroidViewModel(application) {
     private val repository:AlarmRepository
     val allAlarmsSorted: LiveData<List<Alarm>>?
 

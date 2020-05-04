@@ -26,4 +26,7 @@
     <string name="sleep_genius_wakeup_opt2">Fall asleep in _ minutes.</string>
     <string name="difficulty">Difficulty</string>
     <string name="category">Category</string>
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="hard">Hard</string>
 </resources>

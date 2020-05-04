@@ -11,10 +11,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.allydev.ally.schemas.AlarmDatabase
 import com.allydev.ally.api.TriviaViewModel
+import com.allydev.ally.fragments.settings.DifficultyFragment
 import com.allydev.ally.schemas.trivia.TriviaDatabase
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         /*triviaViewModel.repository.api.switchToken_NewBuild("d5f9566082f19b4f8cb7ade00ba07212000e1c09bec57f870b0f1eef7d49ab4e")*/
 
 
-        triviaViewModel.getCategories.observe(this, Observer{
+        triviaViewModel.getCategoriesFromAPI.observe(this, Observer{
 
         })
 
@@ -82,8 +84,13 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings_difficulty -> true
+            R.id.action_settings_difficulty -> {
+                val ft = mainFragment.childFragmentManager
+                DifficultyFragment.newInstance().show(ft, "dialog")
+                true
+            }
             R.id.action_settings_category -> {
+                NavHostFragment.findNavController(mainFragment).navigate(R.id.categoryFragment)
                 true
             }
 

@@ -14,12 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.allydev.ally.R
 import com.allydev.ally.adapters.AlarmAdapter
 import com.allydev.ally.viewmodels.AddAlarmViewModel
-import com.allydev.ally.schemas.AlarmViewModel
+import com.allydev.ally.schemas.AlarmDataViewModel
 import kotlinx.android.synthetic.main.fragment_all_alarms.*
 
 class AllAlarms : Fragment() {
 
-    private val alarmViewModel by activityViewModels<AlarmViewModel>()
+    private val alarmViewModel by activityViewModels<AlarmDataViewModel>()
     private val addAlarmViewModel by activityViewModels<AddAlarmViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
