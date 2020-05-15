@@ -32,7 +32,7 @@ class AlarmRepository() {
     }
 
     @WorkerThread
-    fun createAlarm(hour: Int?, minute: Int?, boolArr: Array<Boolean>): Int{
+    fun createAlarm(hour: Int?, minute: Int?, boolArr: Array<Boolean>, singleAlarm: Boolean?): Int{
         //refresh allAlarms
         val allAlarms = alarmDao?.findAll()
 
@@ -49,7 +49,7 @@ class AlarmRepository() {
             newRequestId = lastAlarm.requestId!! + lastDaysElems!!
         }
 
-        val newAlarm:Alarm = Alarm(hour, minute, boolArr, boolCount, newRequestId)
+        val newAlarm:Alarm = Alarm(hour, minute, boolArr, boolCount, newRequestId, singleAlarm)
 
         alarmDao?.createAlarm(newAlarm)
         return newRequestId
@@ -58,7 +58,7 @@ class AlarmRepository() {
     @WorkerThread
     fun findByHourMinuteAndDay(pHour: Int?, pMinute: Int?, dayIdx: Int?):Alarm{
         val alarmList: List<Alarm>? = alarmDao?.findByHourMinute(pHour, pMinute)
-
+        println(alarmList?.size)
         for (alarm in alarmList.orEmpty()){
             if (dayIdx == 0) { if (alarm.sun == true) return alarm }
             else if (dayIdx == 1) { if (alarm.mon == true) return alarm }
@@ -68,7 +68,7 @@ class AlarmRepository() {
             else if (dayIdx == 5) { if (alarm.fri == true) return alarm }
             else if (dayIdx == 6) { if (alarm.sat == true) return alarm }
         }
-        return Alarm(null, null, emptyArray(), null, null)
+        return Alarm(null, null, emptyArray(), null, null, false)
     }
 
     @WorkerThread
@@ -92,6 +92,17 @@ class AlarmRepository() {
 
 
     }
+
+    @WorkerThread
+    fun deleteAlarmById(id: Long?){
+        val alarm = alarmDao?.findById(id)
+        alarmDao?.deleteAlarm(alarm)
+    }
+
+    /*@WorkerThread
+    fun deleteAllAlarms(){
+        alarmDao?.deleteAllAlarms()
+    }*/
 
     /*@WorkerThread
     fun findAlarmByRequestCode(requestCode: Int){

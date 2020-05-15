@@ -5,7 +5,6 @@ import android.graphics.Path
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatRadioButton
@@ -13,7 +12,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import com.allydev.ally.databinding.AlarmActivityBinding
 import com.allydev.ally.schemas.AlarmDatabase
-import com.allydev.ally.utils.Logl
 import com.allydev.ally.viewmodels.AddAlarmViewModel
 import com.allydev.ally.viewmodels.AlarmTriviaViewModel
 import com.allydev.ally.viewmodels.AlarmViewModel
@@ -44,10 +42,17 @@ class AlarmActivity : AppCompatActivity() {
 
 
 
+        val id: Long? = intent.extras!!.get("id") as Long
         val hour:Int? = intent.extras!!.get("hour") as Int
         val minute:Int? = intent.extras!!.get("minute") as Int
         val day:Int? = intent.extras!!.get("day") as Int
-        addAlarmViewModel.recreateOneAlarm(hour, minute, day)
+        val singleDay:Boolean = if (intent.extras!!.get("singleAlarm") == "true") true else false
+        //Move this onto viewmodel
+        //
+        if (addAlarmViewModel.alarmActivityAddProcessed == false) {
+            addAlarmViewModel.processAlarmRenewal(hour, minute, day, singleDay, id)
+            addAlarmViewModel.alarmActivityAddProcessed = true
+        }
         alarmTriviaViewModel.triviaData?.observe(this, Observer{ data ->
             if (data != null) {
                 alarmTriviaViewModel.setDataAndRetrieveAnswersArray(data)

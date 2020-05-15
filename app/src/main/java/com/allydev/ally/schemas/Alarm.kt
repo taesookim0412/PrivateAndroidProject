@@ -19,7 +19,8 @@ data class Alarm(
     @ColumnInfo(name = "fri") val fri: Boolean?,
     @ColumnInfo(name = "sat") val sat: Boolean?,
     @ColumnInfo(name = "daysSize") val daysElems: Int?,
-    @ColumnInfo(name = "requestId") val requestId: Int?
+    @ColumnInfo(name = "requestId") val requestId: Int?,
+    @ColumnInfo(name = "singleAlarm") val singleAlarm: Boolean?
 
 ) {
     constructor(
@@ -27,6 +28,8 @@ data class Alarm(
         min: Int?,
         days: Array<Boolean>,
         daysElems: Int?,
-        requestId: Int?
-    ) : this(null, hour, min, days[0], days[1], days[2], days[3], days[4], days[5], days[6], daysElems, requestId)
+        requestId: Int?,
+        singleAlarm: Boolean?
+
+    ) : this(null, hour, min, days[0], days[1], days[2], days[3], days[4], days[5], days[6], daysElems, requestId, singleAlarm)
 }

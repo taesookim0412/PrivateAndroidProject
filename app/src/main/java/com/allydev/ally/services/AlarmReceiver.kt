@@ -17,6 +17,7 @@ class AlarmReceiver: BroadcastReceiver() {
         AlarmDatabase.getAlarmDao(context)
         alarmRepository = AlarmRepository()
         alarmRepository.addAlarmUtil.reCreateAllAlarms(context, serviceScope)
+        TimeZoneService().scheduleJob(context)
 
     }
 

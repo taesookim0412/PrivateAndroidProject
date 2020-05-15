@@ -39,6 +39,7 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
     val daysSet = MutableLiveData<MutableSet<Day>>().apply {
             value = HashSet<Day>()
     }
+    var alarmActivityAddProcessed = false
     init{
         hardReset()
     }
@@ -47,7 +48,9 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
         alarmRepository.addAlarmUtil.recreateAlarm_AtThisTime(getApplication())
     }*/
 
-    fun recreateOneAlarm(hour:Int?, minute:Int?, dayIdx: Int?){
+    fun processAlarmRenewal(hour:Int?, minute:Int?, dayIdx: Int?, singleDay: Boolean, id: Long?) = CoroutineScope(Dispatchers.IO).launch{
+        //TODO: Delete alarm
+        if (singleDay == true) alarmRepository.deleteAlarmById(id).also{ return@launch }
         alarmRepository.addAlarmUtil.recreateOneAlarm_ExtraHourAndMinute(getApplication(), hour, minute, dayIdx?:0, viewModelScope, alarmManager)
     }
 

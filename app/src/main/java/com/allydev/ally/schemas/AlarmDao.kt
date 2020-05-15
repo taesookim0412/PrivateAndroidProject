@@ -12,7 +12,7 @@ interface AlarmDao {
     fun updateAlarm(vararg alarms: Alarm)
 
     @Delete
-    fun deleteAlarm(vararg alarms: Alarm)
+    fun deleteAlarm(vararg alarms: Alarm?)
 
     @Query("SELECT * from alarms")
     fun findAll(): List<Alarm>
@@ -22,4 +22,7 @@ interface AlarmDao {
 
     @Query("SELECT * from alarms WHERE hour = :pHour AND min = :pMinute")
     fun findByHourMinute(pHour: Int?, pMinute:Int?): List<Alarm>
+
+    @Query("SELECT * from alarms WHERE id = :id LIMIT 1")
+    fun findById(id: Long?): Alarm
 }

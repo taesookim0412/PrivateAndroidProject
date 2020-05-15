@@ -5,20 +5,13 @@
             app:startDestination="@+id/allAlarms">
     <fragment android:id="@+id/allAlarms" android:name="com.allydev.ally.fragments.AllAlarms"
               android:label="Ally" tools:layout="@layout/fragment_all_alarms">
-        <action android:id="@+id/action_allAlarms_to_addAlarm2" app:destination="@+id/addAlarm"
-        />
-        <action
-                android:id="@+id/action_allAlarms_to_categoryFragment"
-                app:destination="@id/categoryFragment" />
+        <action android:id="@+id/action_allAlarms_to_addAlarm2" app:destination="@id/addAlarm"
+                app:enterAnim="@anim/fragment_open_enter" />
     </fragment>
     <fragment android:id="@+id/addAlarm" android:name="com.allydev.ally.fragments.AddAlarm"
               android:label="Ally - Add Alarm" tools:layout="@layout/fragment_add_alarm">
-        <action android:id="@+id/action_addAlarm_to_allAlarms" app:destination="@id/allAlarms"/>
+        <action android:id="@+id/action_addAlarm_to_allAlarms" app:destination="@id/allAlarms"
+                app:exitAnim="@anim/fragment_open_exit"
+                app:popUpTo="@id/allAlarms" />
     </fragment>
-
-    <fragment
-            android:id="@+id/categoryFragment"
-            android:name="com.allydev.ally.fragments.settings.CategoryFragment"
-            android:label="category_fragment"
-            tools:layout="@layout/category_fragment" />
 </navigation>
