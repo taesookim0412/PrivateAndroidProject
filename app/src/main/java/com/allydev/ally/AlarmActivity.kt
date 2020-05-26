@@ -46,14 +46,14 @@ class AlarmActivity : AppCompatActivity() {
         val hour:Int? = intent.extras!!.get("hour") as Int
         val minute:Int? = intent.extras!!.get("minute") as Int
         val day:Int? = intent.extras!!.get("day") as Int
-        val singleDay:Boolean = if (intent.extras!!.get("singleAlarm") == "true") true else false
+        val singleDay:Boolean = intent.extras!!.get("singleAlarm") == "true"
         //Move this onto viewmodel
         //
         if (addAlarmViewModel.alarmActivityAddProcessed == false) {
             addAlarmViewModel.processAlarmRenewal(hour, minute, day, singleDay, id)
             addAlarmViewModel.alarmActivityAddProcessed = true
         }
-        alarmTriviaViewModel.triviaData?.observe(this, Observer{ data ->
+        alarmTriviaViewModel.triviaData.observe(this, Observer{ data ->
             if (data != null) {
                 alarmTriviaViewModel.setDataAndRetrieveAnswersArray(data)
             }

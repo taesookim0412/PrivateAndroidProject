@@ -16,10 +16,10 @@ abstract class AlarmDatabase : RoomDatabase() {
         private var instance: AlarmDatabase? = null
 
         @Volatile
-        var alarmDao: AlarmDao? = null
+        lateinit var alarmDao: AlarmDao
 
         fun getAlarmDao(context:Context): AlarmDao{
-            return alarmDao ?: getInstance(context).alarmDao().also { alarmDao = it }
+            return if (this::alarmDao.isInitialized) alarmDao else getInstance(context).alarmDao().also { alarmDao = it }
         }
 
         fun getInstance(context: Context): AlarmDatabase {

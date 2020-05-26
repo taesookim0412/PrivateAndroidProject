@@ -150,7 +150,7 @@ class AddAlarm : Fragment() {
             alarmTimePicker.hour = hour
             alarmTimePicker.minute = minute
         }
-        else {
+        else if (version < 23) {
             alarmTimePicker.currentHour = hour
             alarmTimePicker.currentMinute = minute
 

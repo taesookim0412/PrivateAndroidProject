@@ -4,8 +4,10 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -19,12 +21,21 @@ import com.allydev.ally.schemas.AlarmDatabase
 import com.allydev.ally.api.TriviaViewModel
 import com.allydev.ally.schemas.trivia.TriviaDatabase
 import com.allydev.ally.schemas.trivia.categories.TriviaCategoriesEntity
-import com.allydev.ally.utils.IntroUtil
+import com.allydev.ally.utils.TriviaViewModel.DataIntegrityUtil
+import com.allydev.ally.utils.TriviaViewModel.IntroUtil
+import com.allydev.ally.utils.TriviaViewModel.TriviaDataValidatorUtil
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import io.reactivex.rxjava3.observers.DisposableObserver
+import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     val triviaViewModel by viewModels<TriviaViewModel>()
     lateinit var introUtil: IntroUtil
+    lateinit var dataIntegrityUtil: DataIntegrityUtil
     override fun onResume() {
         super.onResume()
 
@@ -53,6 +64,8 @@ class MainActivity : AppCompatActivity() {
         /*setSupportActionBar(toolbar)*/
         AlarmDatabase.getAlarmDao(applicationContext)
         introUtil = triviaViewModel.introUtil
+        dataIntegrityUtil = triviaViewModel.dataIntegrityUtil
+        triviaDataValidatorUtil  = triviaViewModel.triviaDataValidatorUtil
 
 
         val navController = findNavController(R.id.mainFragment)
@@ -62,14 +75,12 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        TriviaDatabase.getTriviaDao(application)
-        val triviaViewModel = ViewModelProvider(this).get(TriviaViewModel::class.java)
+        /*TriviaDatabase.getTriviaDao(application)*/
         /*triviaViewModel.repository.api.switchToken_NewBuild("d5f9566082f19b4f8cb7ade00ba07212000e1c09bec57f870b0f1eef7d49ab4e")*/
 
         //Put appropriate questions
 
 
-        triviaViewModel.validateQuestions_GT_50()
 //        triviaViewModel.allTrivia?.observe(this, Observer{
 //            Log.d("it size: ", it.size.toString())
 //        })
@@ -84,12 +95,20 @@ class MainActivity : AppCompatActivity() {
 
         //First check if we can fetch with our internet
         //Initialize a validation
+
+        dataGrab()
+
+        /*triviaViewModel.validateQuestions_Half()
         if (triviaViewModel.categoryEntities.value?.size == 0){
             triviaViewModel.validateAPICategories()
         }
 
+        triviaViewModel.validateAPICategoryCts()*/
+
         //Map the fetched boolean
-        var refreshed = false
+
+        /////////////////LEGACY
+        /*var refreshed = false
         triviaViewModel.fetch_Attempted.observe(this, Observer { res ->
             if (res == false) return@Observer
             introUtil.categoriesData = triviaViewModel.categoryEntities
@@ -107,7 +126,7 @@ class MainActivity : AppCompatActivity() {
                 else if (introUtil.choice_Selected == false) displayCategoryDialog()
                 refreshed = true
             }
-        })
+        })*/
 
 
 
@@ -115,23 +134,80 @@ class MainActivity : AppCompatActivity() {
         //Then check if we selected categories
     }
 
-    private fun trailWithDifficultyDialog() {
-        if ((introUtil.STATE_Intro == true || introUtil.difficultyPref == -1) && introUtil.choice_Selected == true) {
-            displayDifficultyDialog()
-        }
+    lateinit var triviaDataValidatorUtil: TriviaDataValidatorUtil
+
+    private fun dataGrab() {
+        if (dataIntegrityUtil.ST_INITIAL == false) return
+        if (!dataIntegrityUtil.initialIntegrity()) return
+        triviaDataValidatorUtil.runValidators().observe(this, Observer{res->
+            if (res == true){
+                //Network
+                introUtil.setPreferences.observe(this, Observer{ data ->
+                    CoroutineScope(Dispatchers.IO).launch{
+                        data.also{
+                            if (it.first == -2L) displayCategoryDialog()
+                            else if (it.second == -1) displayDifficultyDialogQuery()
+                        }
+                    }
+
+                })
+
+
+                /*triviaDataValidatorUtil.initialPreferences().subscribeOn(Schedulers.newThread())
+                    .subscribeWith(object: DisposableObserver<Boolean>(){
+                        override fun onComplete() {
+                        }
+
+                        override fun onNext(settingsExistant: Boolean?) {
+                            if (settingsExistant==null)return
+                            if (!settingsExistant) {
+                                introUtil.ST_INTRO = true
+                            }
+
+                        }
+
+                        override fun onError(e: Throwable?) {
+                        }
+
+                    })*/
+            }
+
+        })
+
     }
 
-    lateinit var difficultyDialog: AlertDialog
-    private fun displayDifficultyDialog(){
-        val singleItems = arrayOf("Random", "Easy", "Medium", "Hard")
-        var checkedItem = if (introUtil.difficultyPref == -1) 1 else introUtil.difficultyPref
+    /*LEGACY
+    private fun trailWithDifficultyDialog() {
+        println("trailing")
+        if ((introUtil.STATE_Intro == true || introUtil.difficultyPref == -1) && introUtil.choice_Selected == true) {
+            displayDifficultyDialogQuery()
+        }
+    }*/
 
-        difficultyDialog =  MaterialAlertDialogBuilder(this)
+    lateinit var difficultyDialog: AlertDialog
+    suspend fun displayDifficultyDialogQuery() {
+        triviaViewModel.getQuestionCtPairs()
+        val data = triviaViewModel.getQuestionCtsByCat(introUtil.categoryPref.value!!)
+        displayDifficultyDialog(data)
+    }
+
+    private fun displayDifficultyDialog(categoryCounts: IntArray = triviaViewModel.getQuestionCtsByCat(introUtil.categoryPref.value!!)) {
+        if (categoryCounts.equals(intArrayOf(0))) return
+        val singleItems = arrayOf("Random", "Easy", "Medium", "Hard")
+        val catChoice = introUtil.choice_Category
+        singleItems.forEachIndexed { i, a ->
+            val sb = StringBuilder(a)
+            var ct = categoryCounts[i]
+            singleItems[i] = sb.append(" (").append(ct.toString()).append(")").toString()
+        }
+        var checkedItem = if (introUtil.difficultyPref.value == -1) 1 else introUtil.difficultyPref.value!!
+
+        Looper.prepare()
+        difficultyDialog = MaterialAlertDialogBuilder(this)
             .setTitle("Difficulty")
             .setPositiveButton("OK") { dialog, which ->
-                introUtil.setDifficulty(checkedItem)
-                introUtil.STATE_Intro = false
-                onChangeSettings()
+                introUtil.setDifficulty(checkedItem, categoryCounts[checkedItem])
+                introUtil.ST_INTRO = false
                 // Respond to positive button press
             }
             // Single-choice items (initialized with checked item)
@@ -140,6 +216,7 @@ class MainActivity : AppCompatActivity() {
                 checkedItem = which
             }
             .show()
+        Looper.loop()
     }
 
     private fun displayIntroDialog() {
@@ -148,56 +225,43 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var categoryDialog: AlertDialog
 
-    private fun displayCategoryDialog() {
-        if (introUtil.choice_Selected == false) {
-            println("Opening new dialog")
-            val categoryData:Array<TriviaCategoriesEntity> = introUtil.categoriesData.value?: emptyArray()
-            //Allow for "RANDOM" Selection at index 0. Thus i+=1
-            val singleItems =
-                categoryData.foldIndexed(Array<String>(categoryData.size+1) { "" }) { i, a: Array<String>, data ->
-                    if (i == 0) a[0] = "Random"
-                    a[i+1] = data.name ?: ""
-                    return@foldIndexed a
-                }
-            var checkedItem = 0
-            println(introUtil.categoryPref)
-            if (introUtil.categoryPref != -2L && introUtil.categoryPref != 0L) {
-                for (i in 0..categoryData.size - 1) {
-                    if (categoryData[i].id == introUtil.choice_Category) checkedItem = i + 1
-
-                }
+    suspend fun displayCategoryDialog() {
+        val categoryData: Array<TriviaCategoriesEntity> = triviaViewModel.triviaCategoryRepository.findAll()
+        println("Category data: " + Arrays.toString(categoryData))
+        //Allow for "RANDOM" Selection at index 0. Thus i+=1
+        //Array of strings
+        val singleItems =
+            categoryData.foldIndexed(Array<String>(categoryData.size + 1) { "" }) { i, a: Array<String>, data ->
+                if (i == 0) a[0] = "Random"
+                a[i + 1] = data.name ?: ""
+                return@foldIndexed a
             }
+        var checkedItem = 0
+        if (introUtil.categoryPref.value != -2L && introUtil.categoryPref.value != 0L) {
+            for (i in 0..categoryData.size - 1) {
+                if (categoryData[i].id == introUtil.choice_Category) checkedItem = i + 1
 
-            categoryDialog = MaterialAlertDialogBuilder(this)
-                .setTitle("Choose A Trivia Category")
-                .setPositiveButton("OK") { dialog, which ->
-                    // Respond to positive button press
-                    introUtil.setCategory()
-                    onChangeSettings()
-                    introUtil.choice_Selected = true
-                    trailWithDifficultyDialog()
-                }
-                // Single-choice items (initialized with checked item)
-                .setSingleChoiceItems(singleItems, checkedItem ?: 0) { dialog, which ->
-                    introUtil.choice_Category = if (which == 0) 0 else categoryData[which-1].id
-                    // Respond to item chosen
-                }
-                .setOnCancelListener(DialogInterface.OnCancelListener {
-                    println("Here")
-                    introUtil.choice_Selected = true
-                })
-                .show()
-
-
+            }
         }
+        Looper.prepare()
+        categoryDialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Choose A Trivia Category")
+            .setPositiveButton("OK") { dialog, which ->
+                // Respond to positive button press
+                introUtil.setCategory()
+            }
+            // Single-choice items (initialized with checked item)
+            .setSingleChoiceItems(singleItems, checkedItem) { dialog, which ->
+                introUtil.choice_CategoryString = singleItems[which]
+                introUtil.choice_Category = if (which == 0) 0 else categoryData[which - 1].id
+                // Respond to item chosen
+            }
+            .setOnCancelListener(DialogInterface.OnCancelListener {
+                println("Here")
+            })
+            .show()
+        Looper.loop()
 
-    }
-
-    fun onChangeSettings(){
-        if (introUtil.categoryPref != -2L && introUtil.difficultyPref != -1){
-            //Wipe && Revalidate
-            triviaViewModel.deleteAllTriviaAndRecreate()
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -213,13 +277,11 @@ class MainActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_settings_difficulty -> {
-                displayDifficultyDialog()
+                CoroutineScope(Dispatchers.IO).launch{displayDifficultyDialogQuery()}
                 true
             }
             R.id.action_settings_category -> {
-                introUtil.choice_Selected = false
-                introUtil.choice_Category = introUtil.categoryPref
-                displayCategoryDialog()
+                CoroutineScope(Dispatchers.IO).launch{ displayCategoryDialog()}
                 /*NavHostFragment.findNavController(mainFragment).navigate(R.id.categoryFragment)*/
                 true
             }

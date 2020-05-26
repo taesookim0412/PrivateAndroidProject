@@ -37,6 +37,8 @@
                 app:navGraph="@navigation/nav_graph" />
 
 
+
+
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
