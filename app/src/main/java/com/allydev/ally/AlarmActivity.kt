@@ -3,6 +3,7 @@ package com.allydev.ally
 import android.animation.ObjectAnimator
 import android.graphics.Path
 import android.os.Bundle
+import android.os.Looper
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.activity.viewModels
@@ -13,14 +14,14 @@ import androidx.lifecycle.Observer
 import com.allydev.ally.databinding.AlarmActivityBinding
 import com.allydev.ally.schemas.AlarmDatabase
 import com.allydev.ally.viewmodels.AddAlarmViewModel
-import com.allydev.ally.viewmodels.AlarmTriviaViewModel
 import com.allydev.ally.viewmodels.AlarmViewModel
 import kotlinx.android.synthetic.main.alarm_activity.*
+import kotlinx.coroutines.*
 
 class AlarmActivity : AppCompatActivity() {
-    private val alarmTriviaViewModel: AlarmTriviaViewModel by viewModels()
     private val addAlarmViewModel:AddAlarmViewModel by viewModels()
     private val alarmViewModel: AlarmViewModel by viewModels()
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,27 +38,52 @@ class AlarmActivity : AppCompatActivity() {
         binding.ansChoice4.setOnClickListener{ view -> onClickAnswer(view)}
         binding.disable.setOnClickListener{ _ -> finishAndRemoveTask()}
         binding.snooze.setOnClickListener{ _ -> alarmViewModel.snooze()}
-        initAlarmSpeak()
 
 
 
+        if (intent.extras != null){
+            val id: Long? = intent.extras.get("id") as Long
+            val hour:Int? = intent.extras.get("hour") as Int
+            val minute:Int? = intent.extras.get("minute") as Int
+            val day:Int? = intent.extras.get("day") as Int
+            val singleDay:Boolean = intent.extras.get("singleAlarm") == "true"
+            //Move this onto viewmodel
+            // Improve this
+            val diu = alarmViewModel.dataIntegrityUtil
+            if (!diu.getState(diu.vars.ST_INITIAL_INTEGRITY_ALARM)) {
+                //exec these in one coroutine
+                CoroutineScope(Dispatchers.IO).launch{
+                    coroutineScope {
+                        launch{ addAlarmViewModel.processAlarmRenewal(hour, minute, day, singleDay, id)}
 
-        val id: Long? = intent.extras!!.get("id") as Long
-        val hour:Int? = intent.extras!!.get("hour") as Int
-        val minute:Int? = intent.extras!!.get("minute") as Int
-        val day:Int? = intent.extras!!.get("day") as Int
-        val singleDay:Boolean = intent.extras!!.get("singleAlarm") == "true"
-        //Move this onto viewmodel
-        //
-        if (addAlarmViewModel.alarmActivityAddProcessed == false) {
-            addAlarmViewModel.processAlarmRenewal(hour, minute, day, singleDay, id)
-            addAlarmViewModel.alarmActivityAddProcessed = true
-        }
-        alarmTriviaViewModel.triviaData.observe(this, Observer{ data ->
-            if (data != null) {
-                alarmTriviaViewModel.setDataAndRetrieveAnswersArray(data)
+                    }
+
+                }
             }
-        })
+            alarmViewModel.triviaDataMap.observe(this, Observer{ data ->
+                println("invoked")
+                if (data != null) {
+                    println(data)
+                    CoroutineScope(Dispatchers.IO).launch{ alarmViewModel.setDataAndRetrieveAnswersArray(data, alarmViewModel)}
+                }
+            })
+        }
+        alarmViewModel.triviaDataMap.observe(this, Observer{ data ->
+            println("invoked")
+            if (data != null) {
+                println(data)
+                CoroutineScope(Dispatchers.IO).launch{
+                    withContext(Dispatchers.IO){
+                        alarmViewModel.setDataAndRetrieveAnswersArray(data, alarmViewModel)
+                    }
+                    initAlarmSpeak()
+                }
+
+            }})
+        /*alarmViewModel.triviaData.observe(this, Observer{ data -> println("found data ${data}")})
+        alarmViewModel.triviaData.observe(this, Observer{ data -> println("found data ${data}")})
+        alarmViewModel.triviaData.observe(this, Observer{ data -> println("found data ${data}")})*/
+
     }
     fun onClickAnswer(view: View){
         val id = view.id

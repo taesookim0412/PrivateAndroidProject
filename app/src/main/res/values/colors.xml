@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#1713A8</color>
-    <color name="colorPrimaryDark">#1713A8</color>
+    <color name="colorPrimary">#6A00FF</color>
+    <color name="colorPrimaryDark">#1E17FF</color>
+    <color name="colorAccent">#000000</color>
     <!--<color name="colorPrimaryDark">#2600FF</color>-->
-    <color name="colorAccent">#FFFFFF</color>
     <color name="selectedText">#1a8fb6</color>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>

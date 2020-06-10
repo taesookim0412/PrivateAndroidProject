@@ -19,5 +19,6 @@
             android:layout_gravity="bottom|end"
             android:layout_marginRight="@dimen/addAlarm_marginRight"
             android:layout_marginBottom="@dimen/addAlarm_marginBottom"
-            app:srcCompat="@drawable/ic_alarm_add"/>
+            app:srcCompat="@drawable/ic_alarm_add"
+            app:backgroundTint="@color/white"/>
 </FrameLayout>

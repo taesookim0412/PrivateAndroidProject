@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -45,10 +46,10 @@ class AddAlarm : Fragment() {
     ): View? {
         val binding: FragmentAddAlarmBinding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_add_alarm, container, false)
-        Log.d("Binding", "Binding")
-
         binding.addAlarmViewModel = addAlarmViewModel
         binding.setLifecycleOwner(viewLifecycleOwner)
+        val activity: AppCompatActivity = activity as AppCompatActivity
+        activity.supportActionBar?.hide()
         return binding.root
     }
 
@@ -99,34 +100,34 @@ class AddAlarm : Fragment() {
         sat.setOnClickListener { _ -> onClickDay(sat, days.sat) }
         sun.setOnClickListener { _ -> onClickDay(sun, days.sun) }
         add.setOnClickListener { _ -> addAction(view) }
-        bgGenius.setOnClickListener { _ -> showGenius() }
-        genius_about.setOnClickListener { _ -> showAboutGenius() }
+//        bgGenius.setOnClickListener { _ -> showGenius() }
+//        genius_about.setOnClickListener { _ -> showAboutGenius() }
     }
 
 
-    private fun showGenius() {
-        timeViewModel.hourStr.value = TimeStringify.getHour(hour)
-        timeViewModel.minuteStr.value = TimeStringify.getMinute(minute)
-        timeViewModel.ampmStr.value = TimeStringify.getAmpm(hour)
-
-        val ft = childFragmentManager.beginTransaction()
-
-        val sleepGenius = SleepGenius.newInstance()
-        sleepGenius.show(ft, "dialog")
-    }
-
-    private fun showAboutGenius() {
-        val ft = childFragmentManager.beginTransaction()
-        val sleepGeniusAbout = SleepGeniusAbout.newInstance()
-        sleepGeniusAbout.show(ft, "dialog")
-    }
+//    private fun showGenius() {
+//        timeViewModel.hourStr.value = TimeStringify.getHour(hour)
+//        timeViewModel.minuteStr.value = TimeStringify.getMinute(minute)
+//        timeViewModel.ampmStr.value = TimeStringify.getAmpm(hour)
+//
+//        val ft = childFragmentManager.beginTransaction()
+//
+//        val sleepGenius = SleepGenius.newInstance()
+//        sleepGenius.show(ft, "dialog")
+//    }
+//
+//    private fun showAboutGenius() {
+//        val ft = childFragmentManager.beginTransaction()
+//        val sleepGeniusAbout = SleepGeniusAbout.newInstance()
+//        sleepGeniusAbout.show(ft, "dialog")
+//    }
 
 
     // add alarm
     private fun addAction(view: View) {
         setTimeInViewModel()
         addAlarmViewModel.addAction(false)
-        view.findNavController().navigate(R.id.allAlarms)
+        view.findNavController().navigate(R.id.action_addAlarm_to_allAlarms)
     }
 
 

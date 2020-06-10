@@ -83,17 +83,19 @@
                     android:text="@string/alarm_lsun"
                     android:id="@+id/sun" app:layout_constraintStart_toEndOf="@+id/sat" android:layout_marginStart="8dp"
                     android:layout_marginLeft="8dp" app:layout_constraintTop_toTopOf="@+id/sat"/>
+            <!--android:text="Tomorrow"-->
+
             <TextView
                     android:id="@+id/dateHolder"
-                    android:background="@color/lightgrey"
-                    android:gravity="center_vertical"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/sun"
-                    app:layout_constraintBottom_toBottomOf="parent" tools:layout_editor_absoluteX="0dp"
-                    app:layout_constraintVertical_bias="0.0"/>
-            <!--android:text="Tomorrow"-->
+                    app:layout_constraintVertical_bias="1.0"
+                    tools:layout_editor_absoluteX="0dp" />
+
             <TextView
                     android:id="@+id/dateText"
                     android:textSize="24sp"
@@ -106,43 +108,45 @@
                     android:layout_marginStart="50dp"
                     app:layout_constraintTop_toTopOf="@+id/dateHolder"/>
 
-            <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:id="@+id/bgGenius"
-                    android:background="@color/colorPrimary"
-                    app:layout_constraintTop_toTopOf="@+id/textView"
-                    app:layout_constraintBottom_toBottomOf="@+id/textView"
-                    app:layout_constraintStart_toStartOf="@+id/dateHolder"
-                    app:layout_constraintEnd_toEndOf="@+id/dateHolder"
-            />
+<!--            <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="0dp"-->
+<!--                    android:id="@+id/bgGenius"-->
+<!--                    android:background="@color/colorPrimary"-->
+<!--                    app:layout_constraintTop_toTopOf="@+id/textView"-->
+<!--                    app:layout_constraintBottom_toBottomOf="@+id/textView"-->
+<!--                    app:layout_constraintStart_toStartOf="@+id/dateHolder"-->
+<!--                    app:layout_constraintEnd_toEndOf="@+id/dateHolder"-->
+<!--            />-->
 
-            <ImageView
-                    android:src="@drawable/blue_question_mark"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:adjustViewBounds="true" android:id="@+id/genius_about"
-                    app:layout_constraintBottom_toBottomOf="@+id/bgGenius"
-                    app:layout_constraintTop_toTopOf="@+id/bgGenius"
-                    app:layout_constraintEnd_toEndOf="@+id/bgGenius" android:layout_marginEnd="25dp"
-                    android:layout_marginRight="25dp" android:layout_marginTop="8dp" android:layout_marginBottom="8dp"/>
+<!--            <ImageView-->
+<!--                    android:src="@drawable/blue_question_mark"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="0dp"-->
+<!--                    android:adjustViewBounds="true" android:id="@+id/genius_about"-->
+<!--                    app:layout_constraintBottom_toBottomOf="@+id/bgGenius"-->
+<!--                    app:layout_constraintTop_toTopOf="@+id/bgGenius"-->
+<!--                    app:layout_constraintEnd_toEndOf="@+id/bgGenius" android:layout_marginEnd="25dp"-->
+<!--                    android:layout_marginRight="25dp" android:layout_marginTop="8dp" android:layout_marginBottom="8dp"/>-->
 
-            <TextView
-                    android:gravity="center_vertical"
-                    android:text="Sleep Genius"
-                    android:layout_width="wrap_content"
-                    android:textSize="28sp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/textView"
-                    android:textColor="@color/selectedText"
-                    android:layout_marginLeft="50dp"
-                    android:layout_marginStart="50dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/dateText" android:layout_marginTop="5dp"/>
+<!--            <TextView-->
+<!--                    android:gravity="center_vertical"-->
+<!--                    android:text="Sleep Genius"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:textSize="28sp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:id="@+id/textView"-->
+<!--                    android:textColor="@color/selectedText"-->
+<!--                    android:layout_marginLeft="50dp"-->
+<!--                    android:layout_marginStart="50dp"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toBottomOf="@+id/dateText" android:layout_marginTop="5dp"/>-->
 
 
     <Button
             android:text="CREATE"
+            app:icon="@drawable/ic_add_24dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:layout_marginBottom="20dp"

@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -27,6 +28,8 @@ class AllAlarms : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_all_alarms, container, false)
         // Inflate the layout for this fragment
+        val activity = activity as AppCompatActivity
+        activity.supportActionBar?.show()
         return root
     }
 
@@ -53,7 +56,7 @@ class AllAlarms : Fragment() {
 
     fun addAlarmNav(view:View){
         addAlarmViewModel.hardReset()
-        view.findNavController().navigate(R.id.addAlarm)
+        view.findNavController().navigate(R.id.action_allAlarms_to_addAlarm)
     }
 
 

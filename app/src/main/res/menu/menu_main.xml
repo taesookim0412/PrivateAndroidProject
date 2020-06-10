@@ -2,12 +2,16 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.allydev.ally.com.allydev.ally.MainActivity">
-    <item android:id="@+id/action_settings_difficulty"
-            android:title="@string/difficulty"
-            android:orderInCategory="100"
-            app:showAsAction="never" />
     <item android:id="@+id/action_settings_category"
             android:title="@string/category"
-            android:orderInCategory="100"
+            android:orderInCategory="0"
+            app:showAsAction="never" />
+    <item android:id="@+id/action_settings_difficulty"
+            android:title="@string/difficulty"
+            android:orderInCategory="1"
+            app:showAsAction="never" />
+    <item android:id="@+id/action_settings_reset"
+            android:title="Reset Trivia"
+            android:orderInCategory="2"
             app:showAsAction="never" />
 </menu>
