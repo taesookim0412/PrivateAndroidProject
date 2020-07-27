@@ -54,6 +54,10 @@ class AddAlarmViewModel(application: Application) : AndroidViewModel(application
         alarmRepository.addAlarmUtil.recreateOneAlarm_ExtraHourAndMinute(getApplication(), hour, minute, dayIdx?:0, viewModelScope, alarmManager)
     }
 
+    fun processAlarmSnooze(hour:Int?, minute: Int?){
+
+    }
+
 
     fun addAction(isOnWake: Boolean){
         alarmRepository.addAlarmUtil.addAction(isOnWake, daysSet.value, hour.value, minute.value, -1, getApplication(), alarmManager, singleDayStr.value, viewModelScope)

@@ -26,6 +26,19 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
         <Button
+                android:id="@+id/disableSound"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:background="@drawable/alarmactivitybuttondisable"
+                android:text="DISABLE SOUND"
+                android:textColor="@color/lightgrey"
+
+
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
                 android:id="@+id/snooze"
                 android:layout_width="0dp"
                 android:layout_height="102dp"

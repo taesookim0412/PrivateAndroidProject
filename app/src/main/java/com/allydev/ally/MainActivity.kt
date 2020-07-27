@@ -1,27 +1,31 @@
 package com.allydev.ally
 
+import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.IntentFilter
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupWithNavController
 import com.allydev.ally.api.TriviaViewModel
+import com.allydev.ally.databinding.ActivityMainBinding
 import com.allydev.ally.schemas.AlarmDatabase
 import com.allydev.ally.schemas.trivia.categories.TriviaCategoriesEntity
-import com.allydev.ally.utils.TriviaViewModel.DataIntegrityUtil
-import com.allydev.ally.utils.TriviaViewModel.IntroUtil
-import com.allydev.ally.utils.TriviaViewModel.TriviaDataValidatorUtil
+import com.allydev.ally.utils.triviaviewmodel.DataIntegrityUtil
+import com.allydev.ally.utils.triviaviewmodel.IntroUtil
+import com.allydev.ally.utils.triviaviewmodel.TriviaDataValidatorUtil
+import com.allydev.ally.viewmodels.AdViewModel
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -29,10 +33,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
+
 class MainActivity : AppCompatActivity() {
     val triviaViewModel by viewModels<TriviaViewModel>()
+    val adViewModel by viewModels<AdViewModel>()
     lateinit var introUtil: IntroUtil
     lateinit var dataIntegrityUtil: DataIntegrityUtil
+    lateinit var triviaDataValidatorUtil: TriviaDataValidatorUtil
+
     override fun onResume() {
         super.onResume()
     }
@@ -45,23 +53,52 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val alarmIntent = Intent(this, AlarmActivity::class.java)
-        //startActivity(alarmIntent)
-
-
-        setContentView(R.layout.activity_main)
+//        val alarmIntent = Intent(this, AlarmActivity::class.java)
+//        startActivity(alarmIntent)
         AlarmDatabase.getAlarmDao(applicationContext)
         introUtil = triviaViewModel.introUtil
         dataIntegrityUtil = triviaViewModel.dataIntegrityUtil
         triviaDataValidatorUtil = triviaViewModel.triviaDataValidatorUtil
 
+        adViewModel
+        val adRequest = AdRequest.Builder().build()
 
-        setSupportActionBar(toolbar)
-        val navController = findNavController(R.id.mainFragment)
-        val appBarConfiguration = AppBarConfiguration(navController.graph)
-        findViewById<Toolbar>(R.id.toolbar)
-            .setupWithNavController(navController, appBarConfiguration)
+        val db = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main).apply {
+            viewModel = dataIntegrityUtil
+            lifecycleOwner = this@MainActivity
+            setSupportActionBar(toolbar)
+            errorImage.setOnClickListener{showError()}
+        }
+
+        db.bannerAd.loadAd(adRequest)
+
+
+        //val navController = findNavController(R.id.mainFragment)
+        //val appBarConfiguration = AppBarConfiguration(navController.graph)
+        //findViewById<Toolbar>(R.id.toolbar).setupWithNavController(navController, appBarConfiguration)
+
         dataGrab()
+
+
+    }
+
+    private fun displaySoundDialog() {
+        val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone")
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(introUtil.soundPreference))
+        startActivityForResult(intent, 0)
+        dataIntegrityUtil.setDialogPending()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        dataIntegrityUtil.setDialogPending()
+        if (resultCode == Activity.RESULT_OK && requestCode == 0){
+            val uri:Uri? = data?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+            val uriData = uri?.toString() ?: "none"
+            triviaViewModel.introUtil.setSoundPref(uriData)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -85,8 +122,16 @@ class MainActivity : AppCompatActivity() {
                 openDialogQuery(1)
                 true
             }
-            R.id.action_settings_reset -> {
+            R.id.action_settings_ringtone -> {
                 openDialogQuery(2)
+                true
+            }
+            R.id.action_settings_stats -> {
+                openDialogQuery(3)
+                true
+            }
+            R.id.action_settings_reset -> {
+                openDialogQuery(4)
                 true
             }
 
@@ -94,46 +139,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    lateinit var triviaDataValidatorUtil: TriviaDataValidatorUtil
+    fun showError(){
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Network Error")
+            .setMessage("Network error! Trivia data will not be available unless it is downloaded! Press retry while connected to the internet.")
+            .setNeutralButton("OK") { dialog, which ->
+            }
+            .setPositiveButton("RETRY") { dialog, which ->
+                triviaDataValidatorUtil.runValidators().observe(this, Observer{_-> })
+            }
+            .show()
+    }
 
     fun dataGrab() {
         dataIntegrityUtil.setDialogPending()
         triviaDataValidatorUtil.initialValidator_SwitchInitial.observe(
             this,
-            Observer prefObs@{ data:Pair<Boolean, Boolean> ->
+            Observer prefObs@{ data:Triple<Boolean, Boolean, Boolean> ->
                 if (!dataIntegrityUtil.getState(dataIntegrityUtil.vars.ST_INITIAL_INTEGRITY_DIALOG)) return@prefObs
+                if (dataIntegrityUtil.data_error.value == View.VISIBLE){
+                    showError()
+                    return@prefObs
+                }
                 CoroutineScope(Dispatchers.IO).launch {
                     with(data) {
                         if (first) displayCategoryDialog()
                         else if (second) displayDifficultyDialog()
+                        else if (third) displaySoundDialog()
+
                     }
                 }
             })
     }
-
-
-    //triviaDataValidatorUtil.runValidators().observe(this, Observer { res ->
-    //            if (res != true) return@Observer
-    //            introUtil.pref_Configs.observe(this, Observer prefObs@{ data ->
-    //                if (!dataIntegrityUtil.getState(dataIntegrityUtil.vars.ST_INITIAL_INTEGRITY_DIALOG)) return@prefObs
-    //                CoroutineScope(Dispatchers.IO).launch {
-    //                    data.also {
-    //                        if (it.first == -2L || it.second == -1)
-    //                            if (it.first == -2L) displayCategoryDialog()
-    //                            else if (it.second == -1) displayDifficultyDialogQuery()
-    //                    }
-    //                }
-    //
-    //            })
-    //        })
-
-    /*LEGACY
-    private fun trailWithDifficultyDialog() {
-        println("trailing")
-        if ((introUtil.STATE_Intro == true || introUtil.difficultyPref == -1) && introUtil.choice_Selected == true) {
-            displayDifficultyDialogQuery()
-        }
-    }*/
 
     lateinit var difficultyDialog: AlertDialog
 
@@ -164,6 +201,7 @@ class MainActivity : AppCompatActivity() {
                 // Respond to item chosen
                 checkedItem = which
             }
+            .setOnCancelListener { dataIntegrityUtil.setDialogPending() }
             .show()
         Looper.loop()
     }
@@ -193,11 +231,11 @@ class MainActivity : AppCompatActivity() {
         //0th element
         val singleItems =
             categoryData.foldIndexed(Array<String>(categoryData.size + 1) { "" }) { i, a: Array<String>, data ->
-                if (i == 0) a[0] = "Random (${introUtil.total_num_of_verified_questions})"
                 a[i + 1] =
                     "${data.name} (${triviaViewModel.questionCategoryCountPairs[data.id]?.second})"
                 return@foldIndexed a
             }
+        singleItems[0] = "Random (${introUtil.total_num_of_verified_questions})"
         var checkedItem = 0
         if (introUtil.categoryPref != 0L) {
             for (i in 0..categoryData.size - 1) {
@@ -221,9 +259,7 @@ class MainActivity : AppCompatActivity() {
                 categoryId = if (which == 0) 0 else categoryData[which - 1].id
                 // Respond to item chosen
             }
-            .setOnCancelListener(DialogInterface.OnCancelListener {
-                dataIntegrityUtil.setDialogPending()
-            })
+            .setOnCancelListener{ dataIntegrityUtil.setDialogPending() }
             .show()
         Looper.loop()
 
@@ -238,16 +274,37 @@ class MainActivity : AppCompatActivity() {
         dataIntegrityUtil.setDialogPending()
             triviaDataValidatorUtil.initialValidator_SwitchInitial.observe(
             this,
-            Observer prefObs@{ data:Pair<Boolean, Boolean> ->
-                println("Called in dialog query")
+            Observer prefObs@{ _ ->
                 if (!dataIntegrityUtil.getState(dataIntegrityUtil.vars.ST_INITIAL_INTEGRITY_DIALOG)) return@prefObs
+                val cancellable = (choice == 0 || choice == 1 || choice == 4)
+                if (dataIntegrityUtil.data_error.value == View.VISIBLE && cancellable){
+                    Toast.makeText(this, "Not connected to the internet!", Toast.LENGTH_SHORT).show()
+                    triviaDataValidatorUtil.runValidators().observe(this, Observer {})
+                    return@prefObs
+                }
                 CoroutineScope(Dispatchers.IO).launch {
-                    if (choice == 0) displayCategoryDialog()
-                    else if (choice == 1) displayDifficultyDialog()
-                    else if (choice == 2) displayResetAllDialog()
+                    when (choice){
+                        0 -> displayCategoryDialog()
+                        1 -> displayDifficultyDialog()
+                        2 -> displaySoundDialog()
+                        3 -> displayStatsDialog()
+                        4 -> displayResetAllDialog()
+                    }
                 }
 
             })
     }
+
+    private fun displayStatsDialog() {
+        Looper.prepare()
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Device Trivia Stats")
+            .setMessage("Questions available ${triviaViewModel.triviaSize}")
+            .setPositiveButton("RETURN") { dialog, which ->
+            }
+            .show()
+        Looper.loop()
+    }
+
 
 }

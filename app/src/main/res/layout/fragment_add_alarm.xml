@@ -19,7 +19,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"></TimePicker>
+                    app:layout_constraintTop_toTopOf="parent"/>
 
             <EditText
                     android:layout_width="wrap_content"
@@ -99,6 +99,7 @@
             <TextView
                     android:id="@+id/dateText"
                     android:textSize="24sp"
+                    android:textColor="@color/colorGray"
                     android:gravity="center_vertical"
                     android:text="Tomorrow"
                     android:layout_width="wrap_content"

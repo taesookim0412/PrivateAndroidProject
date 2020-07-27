@@ -10,8 +10,17 @@
             android:title="@string/difficulty"
             android:orderInCategory="1"
             app:showAsAction="never" />
-    <item android:id="@+id/action_settings_reset"
-            android:title="Reset Trivia"
+    <item android:id="@+id/action_settings_ringtone"
+            android:title="Alarm Sound"
             android:orderInCategory="2"
             app:showAsAction="never" />
+    <item android:id="@+id/action_settings_stats"
+            android:title="Trivia Data On Device"
+            android:orderInCategory="3"
+            app:showAsAction="never" />
+    <item android:id="@+id/action_settings_reset"
+            android:title="Reset Trivia"
+            android:orderInCategory="4"
+            app:showAsAction="never" />
+
 </menu>
